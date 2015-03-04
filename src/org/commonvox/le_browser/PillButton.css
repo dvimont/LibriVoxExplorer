@@ -1,0 +1,64 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Sep 26, 2014, 2:03:54 PM
+    Author     : Daniel Vimont
+*/
+.toggle-button.left-pill {
+    -fx-background-radius: 3 0 0 3, 3 0 0 3, 2 0 0 2, 1 0 0 1;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-padding: 0.333333em 0.666667em 0.333333em 0.75em; /* 4 8 4 9 */
+    -fx-focus-color: transparent; // http://stackoverflow.com/questions/6092500
+    -fx-faint-focus-color: transparent; // http://www.jensd.de/wordpress/?p=1245
+}
+.toggle-button.center-pill {
+    -fx-background-radius: 0;
+    -fx-background-insets: 0 0 -1 0, 0 0 0 0, 1 1 1 0, 2 2 2 1 ;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.toggle-button.right-pill {
+    -fx-background-radius: 0 3 3 0, 0 3 3 0, 0 2 2 0, 0 1 1 0;
+    -fx-background-insets: 0 0 -1 0, 0, 1 1 1 0, 2 2 2 1 ;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.toggle-button.left-pill:focused {
+    -fx-background-insets: -0.2 0 -0.2 -0.2, 1, 2, -1.4 0 -1.4 -1.4, 2.6;
+    -fx-background-radius: 3 0 0 3, 2 0 0 2, 1 0 0 1, 4 0 0 4, 1 0 0 1;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.toggle-button.center-pill:focused {
+    -fx-background-insets: -0.2 0 -0.2 -1, 1 1 1 0, 2 2 2 1, -1.4 0 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0, 0, 0, 0, 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.toggle-button.right-pill:focused {
+    -fx-background-insets: -0.2 -0.2 -0.2 -1, 1 1 1 0, 2 2 2 1, -1.4 -1.4 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0 3 3 0, 0 2 2 0, 0 1 1 0, 0 4 4 0, 0 1 1 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.toggle-button:selected.left-pill:focused {
+    -fx-background-insets: -0.2 0 -0.2 -0.2, 1, -1.4 0 -1.4 -1.4, 2.6;
+    -fx-background-radius: 3 0 0 3, 2 0 0 2, 4 0 0 4, 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.toggle-button:selected.center-pill:focused {
+    -fx-background-insets: -0.2 0 -0.2 -1, 1 1 1 0, -1.4 0 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0, 0, 0, 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.toggle-button:selected.right-pill:focused {
+    -fx-background-insets: -0.2 -0.2 -0.2 -1, 1 1 1 0, -1.4 -1.4 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0 3 3 0, 0 2 2 0, 0 4 4 0, 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
