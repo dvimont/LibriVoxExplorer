@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonvox.indexedcollectionmanager;
+package org.commonvox.indexedcollection;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,44 +40,50 @@ import java.util.TreeMap;
  * (e.g., {@literal <Book>} class in a library catalog application).
  Note that, depending upon IDE and compiler settings, it may be
  advisable to avoid using the usually-preferred "diamond operator" 
- when instantiating instances of IndexedCollection, in order to avoid 
+ when instantiating instances of IndexNode, in order to avoid 
  "unchecked generic array creation for varargs parameter" warnings 
  during compilation.
  */
-public class IndexedCollection<V> {
+public class IndexNode<V> {
     public static long count;
-    private final Class<?> VALUE_CLASS;
-    private final Class<? extends Key>[] KEY_CLASS_ARRAY;
-    private final Method[][] AUTOFILL_ARRAY_OF_GET_METHODS;
-    private String TITLE;
-    private final Map<Key, IndexedCollection<V>> middleMap = new TreeMap<>();
-    private final Map<Key, V> bottomMap = new TreeMap<>();
-    private final boolean TOP_LEVEL_MAP;
+    protected final Class<?> VALUE_CLASS;
+    protected final Class<? extends Key>[] KEY_CLASS_ARRAY;
+    protected final Method[][] AUTOFILL_ARRAY_OF_GET_METHODS;
+    protected String TITLE;
+    protected final Map<Key, IndexNode<V>> middleMap = new TreeMap<>();
+    protected final Map<Key, V> bottomMap = new TreeMap<>();
+    protected final boolean TOP_LEVEL_MAP;
 
-    /** Construct a MultiKeyMap object for mapping of objects of the class
-     * specified by valueClass. The MultiKeyMap will only accept entries 
+    /** Construct an IndexNode object for mapping of objects of the class
+     * specified by valueClass. The IndexNode will only accept entries 
      * which include an array of Keys which are of the type and in the order 
      * specified by keyClassArray.
      * @param valueClass Class object denoting the class of objects that will
-     * be mapped by this MultiKeyMap instance. The type variable must be of class
+     * be mapped by this IndexNode instance. The type variable must be of class
      * or subclass established by the type variable V used in instantiation
-     * of the {@link org.commonvox.multikeymap.MultiKeyMap}.
-     * @param title TITLE of MultiKeyMap, used mainly for reporting, development,
-     * & debugging purposes.
+     * of the {@link org.commonvox.indexedcollection.IndexNode}.
+     * @param title TITLE of IndexNode, used mainly for reporting, development,
+     * and debugging purposes.
      * @param keyClassArray array of Class objects defining order and type
      * of Keys to which all key arrays submitted in a 
-     * {@link org.commonvox.indexedcollectionmanager.MultiKeyEntry} parameter to this 
-     * MultiKeyMap must adhere. 
+     * {@link org.commonvox.indexedcollection.MultiKeyEntry} parameter to this 
+     * IndexNode must adhere. 
      */
     @SafeVarargs
-    public IndexedCollection(Class<? extends V> valueClass,
+    public IndexNode(Class<? extends V> valueClass,
                         String title, 
                         Class<? extends Key>... keyClassArray) {
         this(true, valueClass, title, keyClassArray);
     }
     
+    /**
+     *
+     * @param title
+     * @param valueClass
+     * @param keyClassArray
+     */
     @SafeVarargs
-    public IndexedCollection(String title, 
+    public IndexNode(String title, 
                         Class<? extends IndexedKey> valueClass,
                         Class<? extends Key>... keyClassArray) {
         this(true, valueClass, title, keyClassArray);
@@ -85,23 +91,23 @@ public class IndexedCollection<V> {
     
     /** This protected version of the constructor is only invoked directly 
      * within the package for building of metamaps (as used in the 
-     * {@link org.commonvox.multikeymap.Directory} class). 
+     * {@link org.commonvox.indexedcollection.IndexedCollectionManager} class). 
      * Note that, with this constructor signature, valueClass is not limited 
      * to a (sub)class of V.
      * @param dummyInt This dummy parameter exists only to make the signature
      * of this protected constructor differ from one of the public constructors.
      * Any value may be submitted, and it will be ignored.
      * @param valueClass Class object denoting the class of objects that will
-     * be mapped by this MultiKeyMap instance.
-     * @param title TITLE of MultiKeyMap, used mainly for reporting, development,
-     * & debugging purposes.
+     * be mapped by this IndexNode instance.
+     * @param title TITLE of IndexNode, used mainly for reporting, development,
+     * and debugging purposes.
      * @param keyClassArray array of Class objects defining order and type
      * of Keys which all key arrays submitted in a 
-     * {@link org.commonvox.indexedcollectionmanager.MultiKeyEntry} to this MultiKeyMap must
+     * {@link org.commonvox.indexedcollection.MultiKeyEntry} to this IndexNode must
      * adhere to. 
      */
     @SafeVarargs
-    protected IndexedCollection(int dummyInt,
+    protected IndexNode(int dummyInt,
                         Class<?> valueClass,
                         String title, 
                         Class<? extends Key>... keyClassArray) {
@@ -109,27 +115,27 @@ public class IndexedCollection<V> {
     }
     
     /**  
-     * @param isTopLevelMap Indicates whether or not the MultiKeyMap being 
-     * instantiated is a "top level" map (i.e., accessible by a non-MultiKeyMap 
-     * object). Lower level MultiKeyMap objects are only instantiated and 
-     * accessed by higher level MultiKeyMap objects.
+     * @param isTopLevelMap Indicates whether or not the IndexNode being 
+     * instantiated is a "top level" map (i.e., accessible by a non-IndexNode 
+     * object). Lower level IndexNode objects are only instantiated and 
+     * accessed by higher level IndexNode objects.
      * @param valueClass Class object denoting the class of objects that will
-     * be mapped by this MultiKeyMap instance. The type variable must be of class
+     * be mapped by this IndexNode instance. The type variable must be of class
      * or subclass established by the type variable V used in instantiation
-     * of the {@link org.commonvox.multikeymap.MultiKeyMap}.
-     * @param title TITLE of MultiKeyMap, used mainly for reporting, development,
+     * of the {@link org.commonvox.indexedcollection.IndexNode}.
+     * @param title TITLE of IndexNode, used mainly for reporting, development,
      * & debugging purposes.
      * @param keyClassArray array of Class objects defining order and type
      * of Keys which all key arrays submitted in a 
-     * {@link org.commonvox.indexedcollectionmanager.MultiKeyEntry} to this MultiKeyMap must
+     * {@link org.commonvox.indexedcollection.MultiKeyEntry} to this IndexNode must
      * adhere to. 
      */
     @SafeVarargs
-    private IndexedCollection(boolean isTopLevelMap,
+    private IndexNode(boolean isTopLevelMap,
                         Class<?> valueClass,
                         String title, 
                         Class<? extends Key>... keyClassArray) {
-        IndexedCollection.checkVarargs(keyClassArray);
+        IndexNode.checkVarargs(keyClassArray);
         this.VALUE_CLASS = valueClass;
         this.TOP_LEVEL_MAP = isTopLevelMap;
         this.KEY_CLASS_ARRAY = keyClassArray;
@@ -142,20 +148,20 @@ public class IndexedCollection<V> {
         count++;
     }
 
-    /** This private constructor only usable by a MultiKeyMap instance to 
-     * create other (lower level) MultiKeyMap instances.
-     * @param title TITLE of MultiKeyMap, used mainly for reporting, development,
+    /** This private constructor only usable by a IndexNode instance to 
+     * create other (lower level) IndexNode instances.
+     * @param title TITLE of IndexNode, used mainly for reporting, development,
      * & debugging purposes.
      * @param keyClassArray array of Class objects defining order and type
      * of Keys which all key arrays submitted in a 
-     * {@link org.commonvox.indexedcollectionmanager.MultiKeyEntry} to this MultiKeyMap must
+     * {@link org.commonvox.indexedcollection.MultiKeyEntry} to this IndexNode must
      * adhere to. 
      * @param multiKeyEntries one or more MultiKeyEntry objects to be put into
-     * the newly created MultiKeyMap.
+     * the newly created IndexNode.
      * @throws InvalidMultiKeyException 
      */
     @SafeVarargs
-    private IndexedCollection (Class<?> valueClass,
+    private IndexNode (Class<?> valueClass,
                             String title, 
                             Class<? extends Key>[] keyClassArray, 
                             MultiKeyEntry<V>... multiKeyEntries)
@@ -190,7 +196,7 @@ public class IndexedCollection<V> {
     @SafeVarargs
     public final boolean put (V value, Key... keyArray) 
             throws InvalidMultiKeyException {
-        return put(new MultiKeyEntry<V>(value, keyArray));
+        return put(new MultiKeyEntry<>(value, keyArray));
     }
     
     /**
@@ -208,7 +214,7 @@ public class IndexedCollection<V> {
         if (!KEY_CLASS_ARRAY[0].isAssignableFrom(multiKeyEntry.getTopKey().getClass())) {
             throw new InvalidMultiKeyException
                 ("Invalid Key object submitted for 'put' into "
-                    + "MultiKeyMap <" + getTitle() + " LEVEL " 
+                    + "IndexNode <" + getTitle() + " LEVEL " 
                     + this.KEY_CLASS_ARRAY.length
                     + ">. Requires a Key object of class (or subclass of) = " 
                     + KEY_CLASS_ARRAY[0].getSimpleName() 
@@ -225,19 +231,19 @@ public class IndexedCollection<V> {
                 return false; // no overwriting of bottomMap values accepted
             }
         } else {
-            IndexedCollection<V> lowerMultiKeyMap 
+            IndexNode<V> lowerIndexNode 
                     = this.middleMap.get(multiKeyEntry.getTopKey());
             MultiKeyEntry<V> lowerMultiKeyEntry 
                     = multiKeyEntry.getLowerMultiKeyEntry();
-            if (lowerMultiKeyMap == null) {
+            if (lowerIndexNode == null) {
                 this.middleMap.put
                     (multiKeyEntry.getTopKey(), 
-                        new IndexedCollection<V>(this.VALUE_CLASS, this.TITLE, 
+                        new IndexNode<V>(this.VALUE_CLASS, this.TITLE, 
                                             this.getLowerKeyClassArray(),
                                             lowerMultiKeyEntry));
                 return true;
             } else {
-                return lowerMultiKeyMap.put(lowerMultiKeyEntry);
+                return lowerIndexNode.put(lowerMultiKeyEntry);
             }
         }
     }
@@ -283,8 +289,8 @@ public class IndexedCollection<V> {
             vList.addAll(this.bottomMap.values());
         }
         if (middleMap != null && !middleMap.isEmpty()) {
-            for (IndexedCollection<V> lowerMultiKeyMap : this.middleMap.values()) {
-                vList.addAll(lowerMultiKeyMap.selectAll());
+            for (IndexNode<V> lowerIndexNode : this.middleMap.values()) {
+                vList.addAll(lowerIndexNode.selectAll());
             }
         }
         return vList;
@@ -331,15 +337,15 @@ public class IndexedCollection<V> {
         } 
         if (middleMap != null && !middleMap.isEmpty()) {
             if (keyArray.getTopKey() == null) {
-                for (IndexedCollection<V> lowerMultiKeyMap : this.middleMap.values()) {
-                    vList.addAll(lowerMultiKeyMap.get(keyArray.getLowerKeyArray()));
+                for (IndexNode<V> lowerIndexNode : this.middleMap.values()) {
+                    vList.addAll(lowerIndexNode.get(keyArray.getLowerKeyArray()));
                 }
             } else {
                 if (this.middleMap.containsKey(keyArray.getTopKey())) {
-                    IndexedCollection<V> lowerMultiKeyMap 
+                    IndexNode<V> lowerIndexNode 
                             = this.middleMap.get(keyArray.getTopKey());
                     vList.addAll
-                        (lowerMultiKeyMap.get(keyArray.getLowerKeyArray()));
+                        (lowerIndexNode.get(keyArray.getLowerKeyArray()));
                 }
             }
         }
@@ -364,7 +370,7 @@ public class IndexedCollection<V> {
             size += this.bottomMap.size();
         } 
         if (middleMap != null && !middleMap.isEmpty()) {
-            for (IndexedCollection<V> lowerIndex : this.middleMap.values()) {
+            for (IndexNode<V> lowerIndex : this.middleMap.values()) {
                 size += lowerIndex.size();
             }
         }
@@ -380,11 +386,11 @@ public class IndexedCollection<V> {
         if (bottomMap != null && !bottomMap.isEmpty()) {
             for (Entry<Key, V> entry : bottomMap.entrySet()) {
                 multiKeyEntrySet.add
-                    (new MultiKeyEntry<V>(entry.getValue(), entry.getKey()));
+                    (new MultiKeyEntry<>(entry.getValue(), entry.getKey()));
             }
         } 
         if (middleMap != null && !middleMap.isEmpty()) {
-            for (Entry<Key, IndexedCollection<V>> entry 
+            for (Entry<Key, IndexNode<V>> entry 
                                         : this.middleMap.entrySet()) {
                 Set<MultiKeyEntry<V>> lowerMultiKeyEntrySet 
                                         = entry.getValue().getMultiKeyEntrySet();
@@ -518,7 +524,6 @@ public class IndexedCollection<V> {
                         allPutsSuccessful = false;
                     }
                 }
-                continue;
             } else { 
                 assert Key.class.isAssignableFrom(nextGetMethods[i].getReturnType());
                 Key retrievedKey = (Key)nextGetMethods[i].invoke(value);
@@ -543,13 +548,13 @@ public class IndexedCollection<V> {
     }
     
     /**
-     *
+     * Prints verbose listing of IndexNode contents; mainly for test/debug.
      */
     public void dumpContents() {
         StringBuilder output;
         boolean firstItemPrinted;
         printHeadingWithTimestamp
-            ("Dump of <" + this.getTitle() + "> MultiKeyMap", this.size());
+            ("Dump of <" + this.getTitle() + "> IndexNode", this.size());
         System.out.println(keyClassArrayToString());
         printHeading("<VALUE toString> : {KEY1; KEY2; KEY3...}");
         for (MultiKeyEntry<V> multiKeyEntry : this.getMultiKeyEntrySet()) {
@@ -571,7 +576,7 @@ public class IndexedCollection<V> {
 
     private String keyClassArrayToString() {
         StringBuilder output = new StringBuilder();
-        output.append("Key classes for this MultiKeyMap are: {");
+        output.append("Key classes for this IndexNode are: {");
         boolean firstItemPrinted = false;
         for (Class<? extends Key> multiKeyClass 
                                         : this.getKeyClassArray()) {
@@ -620,66 +625,4 @@ public class IndexedCollection<V> {
         }
         System.out.println(headingBorder);
     }
-                        
-    // NOTE: consider moving regex processing to another Class (higher level).
-    /*
-    public List<V> select (String[] regexArray, int startIndex, int numberRequested){
-        List<V> fullList = select(regexArray);
-        List<V> selectList;
-        if (startIndex >= fullList.size()) {
-            selectList = new ArrayList<>(); // empty list
-        } else if (numberRequested == 0 
-                    || numberRequested > (fullList.size() - startIndex)) {
-            selectList = fullList.subList(startIndex, (fullList.size()));
-        } else {
-            selectList 
-                = fullList.subList(startIndex, (startIndex + numberRequested));
-        }
-        return selectList;
-    }
-    */
-    
-    // NOTE: consider moving regex processing to another Class (higher level).
-    /*
-    private List<V> select (String[] regexArray){
-        List<V> vList = new ArrayList<>();
-        int valueCount = 0;
-
-        if (MAP_DEPTH == 1) {
-            if (regexArray[0].isEmpty()) {
-                vList = this.selectAll();
-            } else {
-                Pattern pattern 
-                    = Pattern.compile(regexArray[0], Pattern.CASE_INSENSITIVE);
-                Matcher matcher;
-                for (Map.Entry<Key, V> entry : this.bottomMap.entrySet()) {
-                    matcher = pattern.matcher(entry.getKey().toString());
-                    if (matcher.find()) {
-                        vList.add(entry.getValue());
-                    }
-                }
-            }
-        } else {
-            if (regexArray[0].isEmpty()) {
-                for (IndexedCollection<V> lowerIndex : this.middleMap.values()) {
-                    vList.addAll(lowerIndex.select(Arrays.copyOfRange
-                                (regexArray, 1, regexArray.length)));
-                }
-            } else {
-                Pattern pattern 
-                    = Pattern.compile(regexArray[0], Pattern.CASE_INSENSITIVE);
-                Matcher matcher;
-                for (Map.Entry<Key, IndexedCollection<V>> entry 
-                                            : this.middleMap.entrySet()) {
-                    matcher = pattern.matcher(entry.getKey().toString());
-                    if (matcher.find()) {
-                        vList.addAll(entry.getValue().select(Arrays.copyOfRange
-                                (regexArray, 1, regexArray.length)));
-                    }
-                }
-            }
-        }
-        return vList;
-    }
-    */
 }

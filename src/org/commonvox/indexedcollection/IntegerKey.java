@@ -14,33 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package org.commonvox.indexedcollectionmanager;
+package org.commonvox.indexedcollection;
 
 /**
  *
  * @author Daniel Vimont
  */
-public class InvalidMultiKeyException extends Exception {
-
-    /**
-     * Creates a new instance of <code>InvalidMultiKeyException</code> without
-     * detail message.
-     */
-    public InvalidMultiKeyException() {
+public class IntegerKey 
+        implements KeyWrapper<Integer>, Comparable<IntegerKey> {
+    
+    private Integer wrappedInteger;
+    
+    public IntegerKey(Integer wrappedInteger) {
+        this.wrappedInteger = wrappedInteger;
     }
-
-    /**
-     * Constructs an instance of <code>InvalidMultiKeyException</code> with the
-     * specified detail message.
-     *
-     * @param msg the detail message.
-     */
-    public InvalidMultiKeyException(String msg) {
-        super(msg);
+    
+    @Override
+    public String getKeyItem() {
+        return wrappedInteger.toString(); 
     }
-
-    public InvalidMultiKeyException(String msg, Throwable throwable) {
-        super(msg, throwable);
+    
+    @Override
+    public int compareTo (IntegerKey otherIntegerKey) {
+        return this.getKeyItem().compareTo(otherIntegerKey.getKeyItem());
     }
 }

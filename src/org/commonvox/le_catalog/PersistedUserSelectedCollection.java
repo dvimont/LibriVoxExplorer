@@ -16,7 +16,7 @@
  */
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollectionmanager.IndexedKey;
+import org.commonvox.indexedcollection.IndexedKey;
 
 /**
  *

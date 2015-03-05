@@ -129,11 +129,11 @@ import org.commonvox.le_catalog.Translator;
 import org.commonvox.le_catalog.MyBookmarks;
 import org.commonvox.le_catalog.MyList;
 import org.commonvox.le_catalog.Work;
-import org.commonvox.indexedcollectionmanager.IndexedCollectionBuildFailureException;
-import org.commonvox.indexedcollectionmanager.InvalidMultiKeyException;
-import org.commonvox.indexedcollectionmanager.InvalidCollectionIndexQueryException;
-import org.commonvox.indexedcollectionmanager.Key;
-import org.commonvox.indexedcollectionmanager.IndexedKey;
+import org.commonvox.indexedcollection.IndexedCollectionBuildFailureException;
+import org.commonvox.indexedcollection.InvalidMultiKeyException;
+import org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException;
+import org.commonvox.indexedcollection.Key;
+import org.commonvox.indexedcollection.IndexedKey;
 import org.commonvox.le_catalog.InterruptibleDownloader;
 import org.commonvox.le_catalog.PersistedUserSelectedCollection;
 
@@ -145,7 +145,7 @@ public class LeBrowser extends Application {
     //***************************** VERSION & RELEASE METADATA
     static final int VERSION = 1;
     static final int RELEASE = 4;
-    static final int SM_LEVEL = 3;
+    static final int SM_LEVEL = 4;
     //***************************** END VERSION & RELEASE METADATA
     static final String V_R_SM = VERSION + "." + RELEASE + "." + SM_LEVEL;
     static final String PRODUCT_NAME = "CommonVox.org presents: LibriVox EXPLORER";
@@ -423,7 +423,7 @@ public class LeBrowser extends Application {
             @Override 
             protected Catalog call() 
                 throws InterruptedException, JAXBException,
-                    InvalidCollectionIndexQueryException, IllegalAccessException,
+                    InvalidIndexedCollectionQueryException, IllegalAccessException,
                     InvocationTargetException, InvalidMultiKeyException,
                     IndexedCollectionBuildFailureException, MalformedURLException 
             {
@@ -1751,7 +1751,7 @@ public class LeBrowser extends Application {
             alphabetVBox.getChildren().add
                     (getLetterAccordion(letterAccordionTitle, audiobookVBox));
         } 
-        catch (InvalidCollectionIndexQueryException e) {
+        catch (InvalidIndexedCollectionQueryException e) {
             alphabetVBox.getChildren().add
                     (getExceptionLabel(e, mappedKeyClass.getSimpleName()));
         }
@@ -1796,7 +1796,7 @@ public class LeBrowser extends Application {
                     (getAudiobookAccordion(new AudiobookRowParms(mappedKeyObject)));
             }
         }
-        catch (InvalidCollectionIndexQueryException e) {
+        catch (InvalidIndexedCollectionQueryException e) {
             audiobookVBox.getChildren().add
                     (getExceptionLabel(e, mappedKeyClass.getSimpleName()));
         }
@@ -1849,7 +1849,7 @@ public class LeBrowser extends Application {
                                 }
                             }
                         }
-                        catch (InvalidCollectionIndexQueryException e) {
+                        catch (InvalidIndexedCollectionQueryException e) {
                             myAuthorsVBox.getChildren().add
                                 (getExceptionLabel(e, Author.class.getSimpleName()));
                         }
@@ -1911,7 +1911,7 @@ public class LeBrowser extends Application {
                                 }
                             }
                         }
-                        catch (InvalidCollectionIndexQueryException e) {
+                        catch (InvalidIndexedCollectionQueryException e) {
                             myReadersVBox.getChildren().add
                                 (getExceptionLabel(e, Reader.class.getSimpleName()));
                         }
@@ -2055,7 +2055,7 @@ public class LeBrowser extends Application {
                                     + audiobookLowValueString.toUpperCase() + ">"
                                     + " -- through <" 
                                     + audiobookHighValueString.toUpperCase() + ">";
-                        } catch (InvalidCollectionIndexQueryException e) {}
+                        } catch (InvalidIndexedCollectionQueryException e) {}
                         break;
                     case "PublicationDate":
                     case "DownloadsPerDay":
@@ -2068,7 +2068,7 @@ public class LeBrowser extends Application {
             try { audiobookCount.set(catalog.getWorks
                     (Audiobook.class, rowParms.mappedKeyObject, 
                             rowParms.readerWorksOption, Title.class).size());
-            } catch (InvalidCollectionIndexQueryException e) {}
+            } catch (InvalidIndexedCollectionQueryException e) {}
             /* Count of audiobooks in MyList is dynamic, so Title of TitlePane
                cannot include it. */
             if (MyList.class.isAssignableFrom(rowParms.mappedKeyObject.getClass())
@@ -2337,7 +2337,7 @@ public class LeBrowser extends Application {
                 }
             }
         }
-        catch (InvalidCollectionIndexQueryException e) {
+        catch (InvalidIndexedCollectionQueryException e) {
             StackPane stackPane = new StackPane();
             stackPane.getChildren().add(getExceptionLabel(e,"audiobook"));
             audiobookStackPanes.add(stackPane);

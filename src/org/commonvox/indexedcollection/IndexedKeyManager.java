@@ -14,22 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package org.commonvox.indexedcollectionmanager;
+package org.commonvox.indexedcollection;
 
 /**
  *
  * @author Daniel Vimont
- A class which implements the IndexedKey interface is a special class of Key, 
- which not only serves as a Key in MultiKeyMaps, but also is the mapped
- Value in one or more MultiKeyMaps of its own (hence the name, "IndexedKey").
- For example, the Author class could implement the IndexedKey interface and
- serve as one of the Keys in one or more MultiKeyMaps for the Book class 
- (indexing Books in Author order), and also have its own MultiKeyMap(s) 
- (indexing Authors in name order or other orders).
- * @param <K> the type of key (i.e., the class of object returned by 
- * the getKey() method)
  */
-public interface IndexedKey
-        extends Key<String> {
+public class IndexedKeyManager<V> extends IndexedMetaCollection<V> {
+    public IndexedKeyManager (Class<V> masterClass) {
+        super(masterClass);
+    }
 }

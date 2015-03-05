@@ -14,28 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.commonvox.indexedcollectionmanager;
+
+package org.commonvox.indexedcollection;
 
 /**
  *
  * @author Daniel Vimont
  */
-public class IntegerKey 
-        implements KeyWrapper<Integer>, Comparable<IntegerKey> {
-    
-    private Integer wrappedInteger;
-    
-    public IntegerKey(Integer wrappedInteger) {
-        this.wrappedInteger = wrappedInteger;
+public class InvalidIndexedCollectionQueryException extends Exception {
+
+    /**
+     * Creates a new instance of <code>InvalidIndexedCollectionQueryException</code>
+     * without detail message.
+     */
+    public InvalidIndexedCollectionQueryException() {
     }
-    
-    @Override
-    public String getKeyItem() {
-        return wrappedInteger.toString(); 
-    }
-    
-    @Override
-    public int compareTo (IntegerKey otherIntegerKey) {
-        return this.getKeyItem().compareTo(otherIntegerKey.getKeyItem());
+
+    /**
+     * Constructs an instance of <code>InvalidIndexedCollectionQueryException</code>
+     * with the specified detail message.
+     *
+     * @param msg the detail message.
+     */
+    public InvalidIndexedCollectionQueryException(String msg) {
+        super(msg);
     }
 }

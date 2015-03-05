@@ -18,7 +18,7 @@ package org.commonvox.le_catalog;
 
 import java.io.File;
 import java.util.List;
-import org.commonvox.indexedcollectionmanager.IndexedCollection;
+import org.commonvox.indexedcollection.IndexNode;
 
 /**
  *
@@ -241,7 +241,7 @@ public class LeCatalog {
         System.out.println("\nItem count: " + itemCount + "\n");
         */
         //stage06Catalog.printWorks(Audiobook.class, Author.class);
-        //stage06Catalog.dumpMultiKeyMap(Work.class, Language.class);
+        //stage06Catalog.dumpIndexNode(Work.class, Language.class);
         //stage06Catalog.printWorks(Audiobook.class, Reader.class, "2519");
         //stage06Catalog.printWorksWithoutSubheadings
         //        (Audiobook.class, Author.class);

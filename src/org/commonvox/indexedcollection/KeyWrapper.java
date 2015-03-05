@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonvox.indexedcollectionmanager;
+package org.commonvox.indexedcollection;
 
 /**
  * Wrapper interface provided for any class for which the Key interface is
@@ -23,8 +23,8 @@ package org.commonvox.indexedcollectionmanager;
  * the Comparable interface).
  * @author DanUltra
  * @param <K> the type of key (i.e., the class of object to be wrapped for usage
- * as a Key in a {@link org.commonvox.multikeymap.MultiKeyMap MultiKeyMap}).
- * {@link org.commonvox.indexedcollectionmanager.ClassKey ClassKey} provides an example of
+ * as a Key in an {@link org.commonvox.indexedcollection.IndexNode IndexNode}).
+ * {@link org.commonvox.indexedcollection.ClassKey ClassKey} provides an example of
  * implementation of this interface.
  */
 public interface KeyWrapper<K>

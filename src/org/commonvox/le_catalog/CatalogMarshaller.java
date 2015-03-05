@@ -28,9 +28,9 @@ import java.net.URL;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import org.commonvox.indexedcollectionmanager.IndexedCollectionBuildFailureException;
-import org.commonvox.indexedcollectionmanager.InvalidMultiKeyException;
-import org.commonvox.indexedcollectionmanager.InvalidCollectionIndexQueryException;
+import org.commonvox.indexedcollection.IndexedCollectionBuildFailureException;
+import org.commonvox.indexedcollection.InvalidMultiKeyException;
+import org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException;
 
 /**
  *
@@ -124,7 +124,7 @@ public class CatalogMarshaller {
     
     public static Catalog unmarshalAndBootupCatalog (File file) 
             throws JAXBException, 
-                    InvalidCollectionIndexQueryException, 
+                    InvalidIndexedCollectionQueryException, 
                     IllegalAccessException,
                     InvocationTargetException,
                     InvalidMultiKeyException,
@@ -140,7 +140,7 @@ public class CatalogMarshaller {
 
     public static Catalog unmarshalAndBootupCatalog (CatalogCallback callback) 
             throws JAXBException, 
-                    InvalidCollectionIndexQueryException, 
+                    InvalidIndexedCollectionQueryException, 
                     IllegalAccessException,
                     InvocationTargetException,
                     InvalidMultiKeyException,
@@ -166,7 +166,7 @@ public class CatalogMarshaller {
     /*
     public static Catalog unmarshalCatalogFromXml() 
             throws JAXBException,
-                    InvalidCollectionIndexQueryException, 
+                    InvalidIndexedCollectionQueryException, 
                     IllegalAccessException,
                     InvocationTargetException,
                     InvalidMultiKeyException,

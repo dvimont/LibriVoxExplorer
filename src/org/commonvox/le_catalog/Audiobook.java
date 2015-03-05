@@ -36,7 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import org.commonvox.le_catalog.InterruptibleDownloader.ReturnCode;
-import org.commonvox.indexedcollectionmanager.IndexedKey;
+import org.commonvox.indexedcollection.IndexedKey;
 
 /**
  *

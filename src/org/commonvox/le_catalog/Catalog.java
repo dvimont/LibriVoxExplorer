@@ -48,13 +48,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-import org.commonvox.indexedcollectionmanager.IndexedCollectionBuildFailureException;
-import org.commonvox.indexedcollectionmanager.InvalidMultiKeyException;
-import org.commonvox.indexedcollectionmanager.InvalidCollectionIndexQueryException;
-import org.commonvox.indexedcollectionmanager.Key;
-import org.commonvox.indexedcollectionmanager.IndexedKey;
-import org.commonvox.indexedcollectionmanager.IndexedCollection;
-import org.commonvox.indexedcollectionmanager.IndexedCollectionManager;
+import org.commonvox.indexedcollection.IndexedCollectionBuildFailureException;
+import org.commonvox.indexedcollection.InvalidMultiKeyException;
+import org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException;
+import org.commonvox.indexedcollection.Key;
+import org.commonvox.indexedcollection.IndexedKey;
+import org.commonvox.indexedcollection.IndexNode;
+import org.commonvox.indexedcollection.IndexedCollectionManager;
 /**
  *
  * @author Daniel Vimont
@@ -221,7 +221,7 @@ public class Catalog
     /**
      *
      * @param callback
-     * @throws InvalidCollectionIndexQueryException
+     * @throws InvalidIndexedCollectionQueryException
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      * @throws InvalidMultiKeyException
@@ -230,7 +230,7 @@ public class Catalog
      * @throws JAXBException
      */
     public void bootUp(CatalogCallback callback) 
-            throws InvalidCollectionIndexQueryException, 
+            throws InvalidIndexedCollectionQueryException, 
                     IllegalAccessException,
                     InvocationTargetException,
                     InvalidMultiKeyException,
@@ -267,7 +267,7 @@ public class Catalog
         callback.updateTaskMessage("Propagating author/reader/genre data.");
         setAudiobookAuthorReaderGenre(callback);
         Catalog.printHeadingWithTimestamp
-            ("Creating master directory of MultiKeyMaps.");
+            ("Creating master directory of IndexNodes.");
         callback.updateTaskMessage("Building catalog's indexes.");
         printMemoryUsage("After data propagation", DIAGNOSTIC_MODE);
         buildDirectory();
@@ -496,7 +496,7 @@ public class Catalog
      * @throws InterruptedException
      */
     public final void normalizeMappedKeys(CatalogCallback callback) 
-            throws InvalidCollectionIndexQueryException, InterruptedException     {
+            throws InvalidIndexedCollectionQueryException, InterruptedException     {
         long audiobookCount = 0;
         if (callback != null) {
             callback.updateTaskProgress(0, m4bAudiobooks.size());
@@ -643,62 +643,62 @@ public class Catalog
                     IndexedCollectionBuildFailureException {
         
         DIRECTORY.build("Indexes of Work Collection", 
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Title", 
                     Title.class, PublicationDate.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Publication Date", 
                     PublicationDate.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Downloads", 
                         Downloads.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Author, Title", 
                                 Author.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Author, Publication Date", 
                         Author.class, PublicationDate.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Author, Downloads", 
                         Author.class, Downloads.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Genre, Title", 
                         Genre.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Genre, Publication Date", 
                         Genre.class, PublicationDate.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Genre, Downloads", 
                         Genre.class, Downloads.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Reader, Title", 
                                 Reader.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Reader, Publication Date", 
                         Reader.class, PublicationDate.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Reader, Downloads", 
                         Reader.class, Downloads.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Language, Title", 
                         Language.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Language, Publication Date", 
                     Language.class, PublicationDate.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Language, Downloads", 
                     Language.class, Downloads.class, Title.class, Work.class)
                 
             // Possible future upgrade follows - allow secondary sort by Author
             //   Note that this significantly increases RAM requirement (100MB)
             /*
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Genre, Author", 
                         Genre.class, Author.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Reader, Author", 
                         Reader.class, Author.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new IndexNode<Work>
                 (Audiobook.class, "Audiobooks by Language, Author", 
                     Language.class, Author.class, Title.class, Work.class)
             */
@@ -706,26 +706,26 @@ public class Catalog
 
         DIRECTORY.buildMappedKeyDirectory
             ("Indexes of Work attribute Collections", 
-                new IndexedCollection<IndexedKey>
+                new IndexNode<IndexedKey>
                             ("Authors", Author.class, Author.class),
-                new IndexedCollection<IndexedKey>
+                new IndexNode<IndexedKey>
                             ("Genres", Genre.class, Genre.class),
-                new IndexedCollection<IndexedKey>
+                new IndexNode<IndexedKey>
                             ("Readers", Reader.class, Reader.class),
-                new IndexedCollection<IndexedKey>
+                new IndexNode<IndexedKey>
                             ("Languages", Language.class, Language.class)
             );
                 /*
-                new IndexedCollection<MappedKey>
+                new IndexNode<MappedKey>
                     ("Authors by Librivox ID", Author.class, LibrivoxId.class),
-                new IndexedCollection<MappedKey>
+                new IndexNode<MappedKey>
                     ("Genres by Librivox ID", Genre.class, LibrivoxId.class),
-                new IndexedCollection<MappedKey>
+                new IndexNode<MappedKey>
                     ("Readers by Librivox ID", Reader.class, LibrivoxId.class));
                 */
     }
 
-    /** Populates IndexedCollection indexes: (1) one set for MasterClass objects (which 
+    /** Populates IndexNode indexes: (1) one set for MasterClass objects (which 
  in this application are Work (audiobook and section) class objects; and
  (2) one set for IndexedKey-implementing objects (which in this application
  are objects such as author, reader, etc.).
@@ -766,9 +766,9 @@ public class Catalog
     public final List<Work> getWorks 
             (Class<? extends Work> workClass, 
                             Class<? extends Key>... keyClassArray)
-            throws InvalidCollectionIndexQueryException {
+            throws InvalidIndexedCollectionQueryException {
                 
-        IndexedCollection.checkVarargs(keyClassArray);
+        IndexNode.checkVarargs(keyClassArray);
         timer.start();
         List<Work> returnList
                 = DIRECTORY.getValueList(workClass, keyClassArray);
@@ -785,12 +785,12 @@ public class Catalog
      * @param readerWorksOption
      * @return List of Work objects that are associated with the submitted 
      * object (e.g., works written by Author, read by Reader, etc.).
-     * @throws org.commonvox.indexedcollectionmanager.InvalidCollectionIndexQueryException
+     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException
      */
     public List<Work> getWorks 
                     (Class<? extends Work> workClass, IndexedKey mappedKey,
                             ReaderWorksOption readerWorksOption) 
-                throws InvalidCollectionIndexQueryException {
+                throws InvalidIndexedCollectionQueryException {
         timer.start();
         List<Work> fullList = DIRECTORY.getValueList(workClass, mappedKey);
         /*
@@ -831,7 +831,7 @@ public class Catalog
      * order in which list is to be returned.
      * @return List of Work objects that are associated with the submitted 
      * object (e.g., works written by Author, read by Reader, etc.).
-     * @throws org.commonvox.indexedcollectionmanager.InvalidCollectionIndexQueryException
+     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException
      */
     @SafeVarargs
     public final List<Work> getWorks 
@@ -839,8 +839,8 @@ public class Catalog
                             IndexedKey mappedKey,
                             ReaderWorksOption readerWorksOption,
                             Class<? extends Key>... keyClassArray) 
-                throws InvalidCollectionIndexQueryException {
-        IndexedCollection.checkVarargs(keyClassArray);
+                throws InvalidIndexedCollectionQueryException {
+        IndexNode.checkVarargs(keyClassArray);
         //timer.start();
         if (PersistedUserSelectedCollection.class.isAssignableFrom(mappedKey.getClass())) {
             return getWorksFromPersistedUserPreferences
@@ -885,7 +885,7 @@ public class Catalog
                     (Class<? extends Work> workClass, 
                             PersistedUserSelectedCollection persistedUserPreferences,
                             Class<? extends Key>... keyClassArray) 
-                throws InvalidCollectionIndexQueryException {
+                throws InvalidIndexedCollectionQueryException {
         List<Work> fullList = getWorks(workClass, keyClassArray);
         List<Work> returnList = new ArrayList<>();
         for (Work work : fullList) {
@@ -901,7 +901,7 @@ public class Catalog
                     (Class<? extends Work> workClass, 
                             IndexedKey mappedKey,
                             Class<? extends Key>... keyClassArray) 
-                throws InvalidCollectionIndexQueryException {
+                throws InvalidIndexedCollectionQueryException {
         List<Work> allWorks = getWorks(workClass, mappedKey, keyClassArray);
         List<Work> soloWorks = new ArrayList<>();
         for (Work work : allWorks) {
@@ -917,7 +917,7 @@ public class Catalog
                     (Class<? extends Work> workClass, 
                             IndexedKey mappedKey,
                             Class<? extends Key>... keyClassArray) 
-                throws InvalidCollectionIndexQueryException {
+                throws InvalidIndexedCollectionQueryException {
         List<Work> allWorks = getWorks(workClass, mappedKey, keyClassArray);
         List<Work> groupWorks = new ArrayList<>();
         for (Work work : allWorks) {
@@ -1009,16 +1009,16 @@ public class Catalog
  (e.g., a list of Authors, a list of Readers, etc.). 
      * @param mappedKeyClass designates the Class of objects to be 
      * returned. (Must be a non-abstract subclass of 
-     * {@link  org.commonvox.indexedcollectionmanager.IndexedKey IndexedKey}.)  
+     * {@link  org.commonvox.indexedcollection.IndexedKey IndexedKey}.)  
      * @return list of instances of the specified IndexedKey-implementing class
  (e.g., a list of Authors, a list of Readers, etc.).
      */
     public List<IndexedKey> getMappedKeyValueList
             (Class<? extends IndexedKey> mappedKeyClass)
-            throws InvalidCollectionIndexQueryException {
+            throws InvalidIndexedCollectionQueryException {
         //timer.start();
         List<IndexedKey> returnList 
-                = DIRECTORY.getMappedKeyDirectory().getMultiKeyMap
+                = DIRECTORY.getMappedKeyDirectory().getIndexNode
                                 (mappedKeyClass, mappedKeyClass).selectAll();
         //timer.stop();
         return returnList;
@@ -1057,10 +1057,10 @@ public class Catalog
     private <M extends IndexedKey & HasLibrivoxId>
             IndexedKey getMappedKeyObject (Class<M> mappedKeyClass, 
                                                             String idString) 
-            throws InvalidCollectionIndexQueryException {
+            throws InvalidIndexedCollectionQueryException {
         timer.start();
         IndexedKey mappedKeyInstance 
-                = DIRECTORY.getMappedKeyDirectory().getMultiKeyMap
+                = DIRECTORY.getMappedKeyDirectory().getIndexNode
                         (mappedKeyClass, LibrivoxId.class)
                                     .getFirst(new LibrivoxId(idString));
         timer.stop();
@@ -1315,19 +1315,19 @@ public class Catalog
     public void printWorks 
             (Class<? extends Work> workClass, 
                 Class<? extends IndexedKey> mappedKeyClass) 
-            throws InvalidCollectionIndexQueryException {
+            throws InvalidIndexedCollectionQueryException {
         timer.reset();
-        IndexedCollection<IndexedKey> mappedKeyMap 
-                = DIRECTORY.getMappedKeyDirectory().getMultiKeyMap
+        IndexNode<IndexedKey> mappedKeyMap 
+                = DIRECTORY.getMappedKeyDirectory().getIndexNode
                                 (mappedKeyClass, mappedKeyClass);
         
         if (mappedKeyMap == null) {
-            System.out.println("No MultiKeyMap found for: "
+            System.out.println("No IndexNode found for: "
                 + mappedKeyClass.getSimpleName());
             return;
         }
         String workMapTitle 
-            = DIRECTORY.getMultiKeyMap(workClass, mappedKeyClass).getTitle();
+            = DIRECTORY.getIndexNode(workClass, mappedKeyClass).getTitle();
         printHeadingWithTimestamp(workMapTitle);
         for (IndexedKey mappedKeyInstance : mappedKeyMap.selectAll()) {
             printWorks(workClass, mappedKeyInstance);
@@ -1347,7 +1347,7 @@ public class Catalog
     public void printWorks 
                     (Class<? extends Work> workClass, 
                             IndexedKey mappedKeyInstance) 
-            throws InvalidCollectionIndexQueryException {
+            throws InvalidIndexedCollectionQueryException {
         StringBuilder heading = new StringBuilder();
         heading.append(workClass.getSimpleName() + "s of " 
                 + mappedKeyInstance.getClass().getSimpleName() + ": "
@@ -1391,7 +1391,7 @@ public class Catalog
     public <W extends Work, M extends IndexedKey & HasLibrivoxId>
             void printWorks 
                 (Class<W> workClass, Class<M> mappedKeyClass, String idString)
-            throws InvalidCollectionIndexQueryException {
+            throws InvalidIndexedCollectionQueryException {
 
         IndexedKey mappedKeyInstance 
                 = getMappedKeyObject(mappedKeyClass, idString);
@@ -1409,22 +1409,22 @@ public class Catalog
      * workClass in the order specified by keyClass. 
      *  @param workClass designates (sub)class of Work objects to be printed
      * (e.g., Audiobook.class).
-     * @param keyClass Key-implementing class, designating the order in 
-     * which Works are to be printed (e.g., Author.class, Title.class, etc.). */
+     * @param keyClassArray
+     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException */
     @SafeVarargs
     public final void printWorksWithoutSubheadings 
             (Class<? extends Work> workClass, 
                     Class<? extends Key>... keyClassArray) 
-            throws InvalidCollectionIndexQueryException {
-        IndexedCollection.checkVarargs(keyClassArray);
+            throws InvalidIndexedCollectionQueryException {
+        IndexNode.checkVarargs(keyClassArray);
         timer.reset();
-        String multiKeyMapTitle 
-                = DIRECTORY.getMultiKeyMap(workClass, keyClassArray).getTitle();
-        printHeadingWithTimestamp(multiKeyMapTitle);
+        String indexNodeTitle 
+                = DIRECTORY.getIndexNode(workClass, keyClassArray).getTitle();
+        printHeadingWithTimestamp(indexNodeTitle);
         for (Work work : getWorks(workClass, keyClassArray)) {
             System.out.println(work.toStringVerbose());
         }
-        printHeadingWithTimestamp("End of " + multiKeyMapTitle
+        printHeadingWithTimestamp("End of " + indexNodeTitle
             + ". " + getDataRetrievalTimeString(timer.get()));
     }
     
@@ -1434,10 +1434,10 @@ public class Catalog
  of objects to be printed (e.g. Author.class, Reader.class, etc.) */
     public void printMappedKeyInstances
                         (Class<? extends IndexedKey> mappedKeyClass) 
-                            throws InvalidCollectionIndexQueryException {
+                            throws InvalidIndexedCollectionQueryException {
         timer.reset();
-        IndexedCollection<IndexedKey> index 
-            = DIRECTORY.getMappedKeyDirectory().getMultiKeyMap
+        IndexNode<IndexedKey> index 
+            = DIRECTORY.getMappedKeyDirectory().getIndexNode
                     (mappedKeyClass, mappedKeyClass);
 
         printHeadingWithTimestamp
@@ -1545,12 +1545,11 @@ public class Catalog
     }
     
     @SafeVarargs
-    protected final void dumpMultiKeyMap (Class<? extends Work> workClass, 
+    protected final void dumpIndexNode (Class<? extends Work> workClass, 
                                         Class<? extends Key>... keyClassArray) 
-            throws InvalidCollectionIndexQueryException {
-        IndexedCollection.checkVarargs(keyClassArray);
-        DIRECTORY.getMultiKeyMap
-                                (workClass, keyClassArray).dumpContents();
+            throws InvalidIndexedCollectionQueryException {
+        IndexNode.checkVarargs(keyClassArray);
+        DIRECTORY.getIndexNode(workClass, keyClassArray).dumpContents();
     }
     
     @XmlTransient
@@ -1594,6 +1593,6 @@ public class Catalog
             (" Total memory: " 
                 + String.format("%,13d",totalMemory));
         System.out.println
-            ("Number of active Index nodes: " + IndexedCollection.count);
+            ("Number of active Index nodes: " + IndexNode.count);
     }
 }

@@ -25,7 +25,7 @@ import java.util.TreeSet;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javafx.util.Duration;
-import org.commonvox.indexedcollectionmanager.IndexedKey;
+import org.commonvox.indexedcollection.IndexedKey;
 
 /**
  *

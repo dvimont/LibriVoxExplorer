@@ -15,28 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonvox.indexedcollectionmanager;
+package org.commonvox.indexedcollection;
 
 /**
  *
  * @author Daniel Vimont
+ A class which implements the IndexedKey interface is a special class of Key, 
+ which not only serves as a Key in IndexNodes, but also is the mapped
+ Value in one or more IndexNodes of its own (hence the name, "IndexedKey").
+ For example, the Author class could implement the IndexedKey interface and
+ serve as one of the Keys in one or more IndexNodes for the Book class 
+ (indexing Books in Author order), and also have its own IndexNode(s) 
+ (indexing Authors in name order or other orders).
  */
-public class InvalidCollectionIndexQueryException extends Exception {
-
-    /**
-     * Creates a new instance of <code>InvalidMultiKeyMapQueryException</code>
-     * without detail message.
-     */
-    public InvalidCollectionIndexQueryException() {
-    }
-
-    /**
-     * Constructs an instance of <code>InvalidMultiKeyMapQueryException</code>
-     * with the specified detail message.
-     *
-     * @param msg the detail message.
-     */
-    public InvalidCollectionIndexQueryException(String msg) {
-        super(msg);
-    }
+public interface IndexedKey extends Key<String> {
 }

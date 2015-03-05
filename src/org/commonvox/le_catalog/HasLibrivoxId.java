@@ -17,7 +17,7 @@
 
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollectionmanager.Key;
+import org.commonvox.indexedcollection.Key;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**

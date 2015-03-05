@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.commonvox.indexedcollectionmanager.Key;
+import org.commonvox.indexedcollection.Key;
 
 /**
  *

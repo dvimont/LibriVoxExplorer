@@ -14,14 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.commonvox.indexedcollectionmanager;
+package org.commonvox.indexedcollection;
 
 /**
  *
- * @author Daniel Vimont
+ * @author DanUltra
  */
-public class IndexedKeyManager<V> extends IndexedMetaCollection<V> {
-    public IndexedKeyManager (Class<V> masterClass) {
-        super(masterClass);
+public class IndexedCollectionBuildFailureException extends Exception {
+
+    /**
+     * Creates a new instance of <code>DirectoryBuildFailureException</code>
+     * without detail message.
+     */
+    public IndexedCollectionBuildFailureException() {
+    }
+
+    /**
+     * Constructs an instance of <code>DirectoryBuildFailureException</code>
+     * with the specified detail message.
+     *
+     * @param msg the detail message.
+     */
+    public IndexedCollectionBuildFailureException(String msg) {
+        super(msg);
     }
 }

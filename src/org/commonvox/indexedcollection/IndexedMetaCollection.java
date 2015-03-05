@@ -15,24 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonvox.indexedcollectionmanager;
+package org.commonvox.indexedcollection;
 
 import java.util.Arrays;
 import java.util.List;
 
 
-/** Container class for a set of MultiKeyMaps. All MultiKeyMaps in such a set
+/** Container class for a set of IndexNodes. All IndexNodes in such a set
  * provide mapping for the same types of objects: objects which are instances 
  * of the class or subclasses of the class denoted by {@literal <V>}.
  * Class {@literal <V>} is referred to as the MasterClass of the IndexedMetaCollection.
  * @author Daniel Vimont
- * @param <V> The MasterClass of the IndexedMetaCollection. All IndexedCollection objects managed
+ * @param <V> The MasterClass of the IndexedMetaCollection. All IndexNode objects managed
  by a IndexedMetaCollection object provide mapping for objects of class (or subclass of
  the class) denoted by {@literal <V>}.
  */
 public abstract class IndexedMetaCollection<V> {
     final Class<V> MASTER_CLASS;
-    IndexedCollection<IndexedCollection<V>> metamap; 
+    IndexNode<IndexNode<V>> metamap; 
     int maxDepth = 0;
     
     /**
@@ -44,47 +44,47 @@ public abstract class IndexedMetaCollection<V> {
     }
 
     /**
-     * This method takes the array of IndexedCollection objects that is passed to it
- and constructs a metamap (a IndexedCollection of CollectionIndexes) that forms the 
+     * This method takes the array of IndexNode objects that is passed to it
+ and constructs a metamap (a IndexNode of CollectionIndexes) that forms the 
  centerpiece of the IndexedMetaCollection.
      * @param title Title of the directory.
-     * @param multiKeyMapArray Array of IndexedCollection objects, all of which 
+     * @param indexNodeArray Array of IndexNode objects, all of which 
  provide various mappings for the same set of objects: instances of 
  class {@literal <V>}. {@literal <V>} is referred to as the MasterClass
  of the IndexedMetaCollection.
      * @throws InvalidMultiKeyException
-     * @throws org.commonvox.indexedcollectionmanager.IndexedCollectionBuildFailureException
+     * @throws org.commonvox.indexedcollection.IndexedCollectionBuildFailureException
      */
     @SafeVarargs
     public final void build 
-            (String title, IndexedCollection<V>... multiKeyMapArray) 
+            (String title, IndexNode<V>... indexNodeArray) 
                 throws InvalidMultiKeyException,
                         IndexedCollectionBuildFailureException {
-        IndexedCollection.checkVarargs(multiKeyMapArray);
-        for (IndexedCollection multiKeyMap : multiKeyMapArray) {
-            if (maxDepth < multiKeyMap.getDepth()) {
-                maxDepth = multiKeyMap.getDepth();
+        IndexNode.checkVarargs(indexNodeArray);
+        for (IndexNode indexNode : indexNodeArray) {
+            if (maxDepth < indexNode.getDepth()) {
+                maxDepth = indexNode.getDepth();
             }
         }
         @SuppressWarnings("unchecked")
         Class<? extends Key>[] classKeyClassArray = new Class[maxDepth + 1];
         Arrays.fill(classKeyClassArray, ClassKey.class);
-        metamap = new IndexedCollection<IndexedCollection<V>>
-                        (0, IndexedCollection.class, title, classKeyClassArray);
-        for (IndexedCollection<V> multiKeyMap : multiKeyMapArray) {
+        metamap = new IndexNode<IndexNode<V>>
+                        (0, IndexNode.class, title, classKeyClassArray);
+        for (IndexNode<V> indexNode : indexNodeArray) {
             ClassKey[] classKeyArray 
-                = new ClassKey[multiKeyMap.getKeyClassArray().length + 1];
-            classKeyArray[0] = new ClassKey(multiKeyMap.getValueClass());
+                = new ClassKey[indexNode.getKeyClassArray().length + 1];
+            classKeyArray[0] = new ClassKey(indexNode.getValueClass());
             for (int i=1 ; i < classKeyArray.length; i++) {
                 classKeyArray[i] 
-                    = new ClassKey(multiKeyMap.getKeyClassArray()[i - 1]);
+                    = new ClassKey(indexNode.getKeyClassArray()[i - 1]);
             }
-            boolean putSuccessful = metamap.put(multiKeyMap, classKeyArray);
+            boolean putSuccessful = metamap.put(indexNode, classKeyArray);
             if (!putSuccessful) {
                 throw new IndexedCollectionBuildFailureException
                     ("Failure in build method for <" + this.MASTER_CLASS 
-                    + "> directory: 'put' failed for the following MultiKeyMap: <"
-                    + multiKeyMap.getTitle() + ">");
+                    + "> directory: 'put' failed for the following IndexNode: <"
+                    + indexNode.getTitle() + ">");
             }
         }
         //metamap.dumpContents();
@@ -95,15 +95,15 @@ public abstract class IndexedMetaCollection<V> {
      * @param valueClass
      * @param keyClassArray
      * @return
-     * @throws InvalidCollectionIndexQueryException
+     * @throws InvalidIndexedCollectionQueryException
      */
     @SafeVarargs
     public final List<V> getValueList (Class<? extends V> valueClass, 
                                         Class<? extends Key>... keyClassArray) 
-            throws InvalidCollectionIndexQueryException {
-        IndexedCollection.checkVarargs(keyClassArray);
+            throws InvalidIndexedCollectionQueryException {
+        IndexNode.checkVarargs(keyClassArray);
         
-        return getMultiKeyMap(valueClass, keyClassArray).selectAll();
+        return getIndexNode(valueClass, keyClassArray).selectAll();
     }
     
     /**
@@ -111,13 +111,13 @@ public abstract class IndexedMetaCollection<V> {
      * @param valueClass
      * @param mappedKeyInstance
      * @return
-     * @throws InvalidCollectionIndexQueryException
+     * @throws InvalidIndexedCollectionQueryException
      */
     public List<V> getValueList (Class<? extends V> valueClass, 
                                             IndexedKey mappedKeyInstance) 
-            throws InvalidCollectionIndexQueryException {
+            throws InvalidIndexedCollectionQueryException {
         
-        return getMultiKeyMap(valueClass, mappedKeyInstance.getClass())
+        return getIndexNode(valueClass, mappedKeyInstance.getClass())
                                                     .get(mappedKeyInstance);
     }
 
@@ -127,13 +127,13 @@ public abstract class IndexedMetaCollection<V> {
      * @param mappedKeyInstance
      * @param keyClassArray
      * @return
-     * @throws InvalidCollectionIndexQueryException
+     * @throws InvalidIndexedCollectionQueryException
      */
     @SafeVarargs
     public final List<V> getValueList (Class<? extends V> valueClass, 
                                     IndexedKey mappedKeyInstance,
                                     Class<? extends Key>... keyClassArray) 
-            throws InvalidCollectionIndexQueryException {
+            throws InvalidIndexedCollectionQueryException {
         
         @SuppressWarnings("unchecked")
         Class<? extends Key>[] newKeyClassArray
@@ -143,7 +143,7 @@ public abstract class IndexedMetaCollection<V> {
             newKeyClassArray[i] = keyClassArray[i - 1];
         }
         
-        return getMultiKeyMap(valueClass, newKeyClassArray)
+        return getIndexNode(valueClass, newKeyClassArray)
                                                     .get(mappedKeyInstance);
     }
 
@@ -152,21 +152,21 @@ public abstract class IndexedMetaCollection<V> {
      * @param valueClass
      * @param keyClassArray
      * @return
-     * @throws InvalidCollectionIndexQueryException
+     * @throws InvalidIndexedCollectionQueryException
      */
     @SafeVarargs
-    public final IndexedCollection<V> getMultiKeyMap (Class<? extends V> valueClass, 
+    public final IndexNode<V> getIndexNode (Class<? extends V> valueClass, 
                                     Class<? extends Key>... keyClassArray) 
-            throws InvalidCollectionIndexQueryException {
-        IndexedCollection.checkVarargs(keyClassArray);
+            throws InvalidIndexedCollectionQueryException {
+        IndexNode.checkVarargs(keyClassArray);
         ClassKey[] classKeyArray = new ClassKey[keyClassArray.length + 1];
         classKeyArray[0] = new ClassKey(valueClass);
         for (int i=1 ; i < classKeyArray.length; i++) {
             classKeyArray[i] 
                 = new ClassKey(keyClassArray[i - 1]);
         }
-        IndexedCollection<V> multiKeyMap = metamap.getFirst(classKeyArray);
-        if (multiKeyMap == null) {
+        IndexNode<V> indexNode = metamap.getFirst(classKeyArray);
+        if (indexNode == null) {
             StringBuilder keyClassArrayString = new StringBuilder();
             boolean pastFirst = false;
             for (Class keyClass : keyClassArray) {
@@ -177,13 +177,13 @@ public abstract class IndexedMetaCollection<V> {
                 }
                 keyClassArrayString.append(keyClass.getSimpleName());
             }
-            throw new InvalidCollectionIndexQueryException
-                ("No MultiKeyMap found for values of <" 
+            throw new InvalidIndexedCollectionQueryException
+                ("No IndexNode found for values of <" 
                         + valueClass.getSimpleName()
                         + "> class, ordered by <"
                         + keyClassArrayString + ">.");
         } else {
-            return multiKeyMap;
+            return indexNode;
         }
     } 
 
@@ -192,8 +192,8 @@ public abstract class IndexedMetaCollection<V> {
      * @return
      */
     public boolean allMapsAutofillEnabled () {
-        for (IndexedCollection multiKeyMap : metamap.selectAll()) {
-            if (!multiKeyMap.autofillEnabled()) {
+        for (IndexNode indexNode : metamap.selectAll()) {
+            if (!indexNode.autofillEnabled()) {
                 return false;
             }
         }
@@ -212,8 +212,8 @@ public abstract class IndexedMetaCollection<V> {
                                                     .append(metamap.size());
         output.append(" ; Maximum multi-key map depth: ").append(this.maxDepth);
         output.append("\n*****");
-        for (IndexedCollection<V> multiKeyMap : metamap.selectAll()) {
-            output.append("\n  ").append(multiKeyMap);
+        for (IndexNode<V> indexNode : metamap.selectAll()) {
+            output.append("\n  ").append(indexNode);
         }
         output.append("\n*****");
         
