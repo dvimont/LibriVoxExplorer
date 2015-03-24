@@ -27,7 +27,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *
+ * This JAXB adapter used to unmarshal {@link Author} objects from xml 
+ * returned by the LibriVox API.
  * @author Daniel Vimont
  */
 @XmlRootElement(name="xml")
@@ -35,18 +36,35 @@ public class AuthorJaxbAdapter {
     private static final String LV_AUTHOR_API_CALL
         = "https://librivox.org/api/feed/authors/?id=%s&extended=1&format=xml";
     
-    protected List<Author> authors;
+    private List<Author> authors;
     
+    /**
+     * Method required for JAXB processing
+     * @return list of {@link Author}s
+     */
     @XmlElementWrapper(name = "authors")
     @XmlElement(name = "author")
     public List<Author> getAuthors () {
         return authors;
     }
     
+    /**
+     * Method required for JAXB processing
+     * @param authors list of {@link Author}s
+     */
     public void setAuthors (List<Author> authors) {
         this.authors = authors;
     }
     
+    /**
+     * Get {@link Author} object via JAXB unmarshalling of LibriVox API's 
+     * xml output
+     * @param authorId
+     * @return {@link Author} object unmarshalled from LibriVox API's xml output
+     * @throws JAXBException if JAXB unmarshal fails
+     * @throws MalformedURLException if LibriVox API url is malformed
+     * @throws RemoteApiProcessingException if LibriVox API returns unexpected data
+     */
     public static Author getAuthorViaApi (String authorId) 
             throws JAXBException, MalformedURLException, RemoteApiProcessingException {
         String apiCallString = String.format(LV_AUTHOR_API_CALL, authorId);

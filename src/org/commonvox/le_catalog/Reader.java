@@ -85,7 +85,7 @@ public class Reader
         return uniqueKey;
     }
     
-    protected void setKeyItem() {
+    private void setKeyItem() {
         uniqueKey = getDisplayName().toLowerCase() 
                 + getId(); // ID suffix added to assure uniqueness v1.4.3
     }

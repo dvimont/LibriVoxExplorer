@@ -21,8 +21,8 @@ package org.commonvox.le_catalog;
  * @author Daniel Vimont
  */
 public interface CatalogCallback {
-    public void updateTaskMessage(String message);
-    public void updateTaskProgress(long workDone, long max);
+    default public void updateTaskMessage(String message){};
+    default public void updateTaskProgress(long workDone, long max){};
     default public void updateSubtasks (int subTasksDone, int subTasks){};
     default public void passbackObject (Object object) {};
 }

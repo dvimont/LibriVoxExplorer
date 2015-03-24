@@ -257,71 +257,7 @@ public abstract class Work
     }
     
     public abstract String toStringVerbose();
-    /*
-    public String toStringVerbose() {
-        StringBuilder output = new StringBuilder();
-        output.append("  TITLE: ").append(this.getCleanedTitle()).append("\n");
-        output.append("    Date of publication: ")
-                .append(this.getPublicationDateInternetArchive())
-                .append("  (LibriVox ID = " + this.getLibrivoxIdKey())
-                .append(")\n");
-        output.append(outputListHorizontally(Author.class));
-        output.append(outputListHorizontally(Reader.class));
-        output.append(outputListHorizontally(Genre.class));
-        output.append(outputListHorizontally(Language.class));
-        output.append("    Downloads / Downloads per day: ")
-                .append(String.format("%,d",this.getDownloadCountInternetArchive()))
-                .append(" / ")
-                .append(String.format("%,5.4f",this.getDownloadsPerDay()))
-                .append("\n");
-        if (this instanceof Section) {
-            Section section = (Section)this;
-            output.append("         Part of AUDIOBOOK: ")
-                    .append(section.getParentAudiobook().getTitleKey())
-                    .append("\n");
 
-        }
-        return output.toString();
-    }
-    
-    private String outputListHorizontally 
-            (Class<? extends MappedKey> mappedKeyClass) {
-        StringBuilder printedList = new StringBuilder();
-        boolean labelPrinted = false;
-        List<? extends MappedKey> list = null;
-        if (mappedKeyClass == Reader.class) {
-            list = this.getReaders();
-        } else if (mappedKeyClass == Genre.class) {
-            list = this.getGenres();
-        } else if (mappedKeyClass == Author.class) {
-            list = this.getAuthors();
-        } else if (mappedKeyClass == Language.class) {
-            List<Language> languages = new ArrayList<>();
-            languages.add(this.getLanguage());
-            list = languages;
-        }
-        if (list == null || list.isEmpty()) {
-            return printedList.toString();
-        }
-        for (MappedKey mappedKeyItem : list) {
-            if (!labelPrinted) {
-                labelPrinted = true;
-                printedList.append(BLANKS.substring
-                    (mappedKeyClass.getSimpleName().length()));
-                printedList.append
-                    (mappedKeyClass.getSimpleName().toUpperCase());
-                printedList.append("(s): ");
-                printedList.append(mappedKeyItem.getKeyItem());
-            } else {
-                printedList.append("; ").append(mappedKeyItem.getKeyItem());
-            }
-        }
-        if (labelPrinted) {
-            printedList.append("\n");
-        }
-        return printedList.toString();
-    }
-    */
     @Override
     public int compareTo(Work otherWork) {
         return this.multiKeyAscendingOrder(otherWork);

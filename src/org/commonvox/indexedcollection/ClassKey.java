@@ -17,10 +17,8 @@
 
 package org.commonvox.indexedcollection;
 
-import java.util.Arrays;
-
 /**
- *
+ * This class used in construction of {@link IndexedMetaCollection}
  * @author Daniel Vimont
  */
 public class ClassKey 
@@ -30,17 +28,16 @@ public class ClassKey
     
     /**
      *
-     * @param wrappedClass
+     * @param wrappedClass the Class object that is to be wrapped by this object
      */
     public ClassKey(Class<?> wrappedClass) {
         this.wrappedClass = wrappedClass;
     }
     
     /**
-     *
-     * @param keyClassArray
-     * @return
+     * unused utility method; uncomment if this comes to be potentially useful
      */
+    /*
     public static ClassKey[] getClassKeyArray (Class... keyClassArray) {
         ClassKey[] classKeyArray = new ClassKey[keyClassArray.length];
         for (int i=0; i < keyClassArray.length; i++) {
@@ -48,10 +45,11 @@ public class ClassKey
         }
         return classKeyArray;
     }
+    */
     
     /**
-     *
-     * @return
+     * Get name of wrapped Class
+     * @return name of wrapped Class
      */
     @Override
     public String getKeyItem() {

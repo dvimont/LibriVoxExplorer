@@ -21,7 +21,7 @@ import org.commonvox.indexedcollection.IndexedKey;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
- *
+ * Language unmarshalled from LibriVox API output
  * @author Daniel Vimont
  */
 @XmlJavaTypeAdapter(LanguageXmlAdapter.class)
@@ -29,25 +29,36 @@ public class Language
         implements IndexedKey, Comparable<Language>, Mergeable {
     protected String language;
     private String uniqueKey;
-    /*
-    // multi part path index fields for Audiobook indexing
-    private String titleForIndex;
-    private String publicationDateForIndex;
-    private int downloadsForIndex;
-    */
+
+    /**
+     * Provides wrapping of String in instance of Language
+     * @param languageString
+     * @return Language instance
+     */
     public static Language getInstance (String languageString) {
         return new Language(languageString);
     }
     
+    /**
+     * Standard constructor
+     * @param languageString language String
+     */
     public Language (String languageString) {
         this.language = languageString;
-        //this.id = languageString;
     }
     
+    /**
+     * Standard get method
+     * @return language String
+     */
     public String getLanguage () {
         return language;
     }
     
+    /**
+     * Standard set method
+     * @param languageString language String
+     */
     public void setLanguage (String languageString) {
         this.language = languageString;
     }
@@ -60,7 +71,7 @@ public class Language
         return uniqueKey;
     }
     
-    protected void setKeyItem() {
+    private void setKeyItem() {
         uniqueKey = language;
     }
     
@@ -73,14 +84,4 @@ public class Language
     public String toString() {
         return language;
     }
-    /*
-    protected void setAudiobookIndexFields(Audiobook audiobook) {
-        if (uniqueKey == null) {
-            setKeyItem();
-        }
-        titleForIndex = audiobook.getTitleKey().getKeyItem();
-        publicationDateForIndex = audiobook.getPublicationDateKey().getKeyItem();
-        downloadsForIndex = audiobook.getDownloadsKey().getKeyItem();
-    }
-    */
 }

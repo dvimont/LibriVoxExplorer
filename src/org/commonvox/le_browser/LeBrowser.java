@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -136,6 +137,7 @@ import org.commonvox.indexedcollection.Key;
 import org.commonvox.indexedcollection.IndexedKey;
 import org.commonvox.le_catalog.InterruptibleDownloader;
 import org.commonvox.le_catalog.PersistedUserSelectedCollection;
+import org.commonvox.le_console.LeConsole;
 
 /**
  *
@@ -144,8 +146,8 @@ import org.commonvox.le_catalog.PersistedUserSelectedCollection;
 public class LeBrowser extends Application {
     //***************************** VERSION & RELEASE METADATA
     static final int VERSION = 1;
-    static final int RELEASE = 4;
-    static final int SM_LEVEL = 4;
+    static final int RELEASE = 5;
+    static final int SM_LEVEL = 1;
     //***************************** END VERSION & RELEASE METADATA
     static final String V_R_SM = VERSION + "." + RELEASE + "." + SM_LEVEL;
     static final String PRODUCT_NAME = "CommonVox.org presents: LibriVox EXPLORER";
@@ -251,7 +253,7 @@ public class LeBrowser extends Application {
     static final String PILL_BUTTON_CSS_FILE = "PillButton.css";
     static final String WEBVIEW_CSS_FILE = "WebView.css";
     static final String RADIO_BUTTON_CSS_FILE = "Radio.css";
-    static final String APP_ICON = "images/app_icon.png";
+    public static final String APP_ICON = "images/app_icon.png";
     static final String LIBRIVOX_LOGO_JPG_FILE = "images/librivoxLogoCropped.jpg";
     final Image OOPS_SMILEY_IMAGE
             = new Image(getClass().getResourceAsStream("images/oopsSmiley.jpg"));
@@ -321,7 +323,6 @@ public class LeBrowser extends Application {
     static final String GOOGLE_QUERY_URL = "https://www.google.com/search?q=";
     static final String BOLD_TEXT_CSS = "-fx-font-weight: bold";
     static final String RED_BOLD_TEXT_CSS = "-fx-text-fill: red; -fx-font-weight: bold";
-
     static final Font BOLD_FONT 
             = Font.font(Font.getDefault().toString(), FontWeight.EXTRA_BOLD, 
                                             Font.getDefault().getSize());
@@ -342,7 +343,7 @@ public class LeBrowser extends Application {
     static final Font BOLD_SLIGHTLY_BIGGER_FONT 
             = Font.font(Font.getDefault().toString(), FontWeight.EXTRA_BOLD,
                                             Font.getDefault().getSize()+1);
-    static final Font BOLD_BIGGER_FONT 
+    public static final Font BOLD_BIGGER_FONT 
             = Font.font(Font.getDefault().toString(), FontWeight.EXTRA_BOLD,
                                             Font.getDefault().getSize()+2);
     static final Font BOLD_BIGGEST_FONT 
@@ -387,14 +388,8 @@ public class LeBrowser extends Application {
         {DETAIL("Audiobook Details"),NEWEST("The Latest Offerings"),
             RANDOM("A Random Selection"),SEARCH("Search results (powered by Google)");
             private final String title;
-            OverlayPaneOption(String title) {
-                this.title = title;
-            }
-            private String getTitle() {
-                return this.title;
-            }
-        };
-
+            OverlayPaneOption(String title) { this.title = title; }
+            private String getTitle() { return this.title; }  };
     Catalog catalog;
     MyList myList = new MyList();
     MyBookmarks myBookmarks = new MyBookmarks();
@@ -402,6 +397,22 @@ public class LeBrowser extends Application {
     boolean alternateLabelColor = false;
     boolean buildCatalogShutdownCompleted = false;
     final FinalBoolean downloadShutdownCompleted = new FinalBoolean();
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        if (args != null && args.length > 0) {
+            if (args[0].toLowerCase().equals("console")) {
+                LeConsole.main(Arrays.copyOfRange(args, 1, args.length));
+            } else {
+                System.out.println("Invalid command-line invocation: " + args[0]);
+                return;
+            }
+        } else {
+            launch(args);
+        }
+    }
     
     @Override
     public void start(final Stage primaryStage) 
@@ -572,13 +583,6 @@ public class LeBrowser extends Application {
         System.exit(0); // 2015-01-12 added to prevent JWrapper from hanging
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        launch(args);
-    }
-    
     private void showExceptionStage (String taskName, Throwable throwable) {
         Stage exceptionStage = new Stage();
         exceptionStage.initStyle(StageStyle.UTILITY);
@@ -1117,6 +1121,13 @@ public class LeBrowser extends Application {
                 Node titledPaneContent = expandedPane.getContent();
                 if (VBox.class.isAssignableFrom
                                     (titledPaneContent.getClass())) {
+                    // following "if" is v1.5.1 fix for start and end titles appearing 
+                    // inappropriately when "Order by" changed from title to something else
+                    if (option.equals(ExpandedPanesOption.REFRESH)) {
+                        // close and reExpand to refresh
+                        expandedPane.setExpanded(false);
+                        expandedPane.setExpanded(true);
+                    }
                     VBox innerVBox = (VBox)titledPaneContent;
                     for (Object innerObj : innerVBox.getChildren()) {
                         Accordion innerAccordion = (Accordion)innerObj;
@@ -1682,24 +1693,24 @@ public class LeBrowser extends Application {
     }
     
     private ScrollPane getAlphabeticScrollPane
-            (Class<? extends IndexedKey> mappedKeyClass) {
+            (Class<? extends IndexedKey> indexedKeyClass) {
                 
         VBox alphabetVBox = new VBox();
         try {
-            List<IndexedKey> mappedKeyList 
-                = catalog.getMappedKeyValueList(mappedKeyClass);
+            List<IndexedKey> indexedKeyList 
+                = catalog.getIndexedKeyValueList(indexedKeyClass);
             VBox audiobookVBox = new VBox();
             String letterAccordionTitle;
             String firstChar;
             String previousFirstChar = "";
             boolean startedAlphabet = false;
             boolean pastLetterZ = false;
-            for (IndexedKey mappedKeyObject : mappedKeyList) {
-                if (mappedKeyObject.getKeyItem().isEmpty()) {
+            for (IndexedKey indexedKeyObject : indexedKeyList) {
+                if (indexedKeyObject.getKeyItem().isEmpty()) {
                     continue;
                 } else {
                     firstChar 
-                        = mappedKeyObject.getKeyItem().substring(0,1).toUpperCase();
+                        = indexedKeyObject.getKeyItem().substring(0,1).toUpperCase();
                 }
                 if (firstChar.compareTo("A") >= 0) {
                     startedAlphabet = true;
@@ -1722,24 +1733,24 @@ public class LeBrowser extends Application {
                     audiobookVBox = new VBox();
                 }
                 // ReaderWorksOption added v1.3.3
-                if (Reader.class.isAssignableFrom(mappedKeyClass)) {
-                    if (catalog.getWorks(Audiobook.class, mappedKeyObject, 
+                if (Reader.class.isAssignableFrom(indexedKeyClass)) {
+                    if (catalog.getWorks(Audiobook.class, indexedKeyObject, 
                             Catalog.ReaderWorksOption.SOLO_WORKS).size() > 0) {
                         audiobookVBox.getChildren().add
                             (getAudiobookAccordion
-                                (new AudiobookRowParms(mappedKeyObject, 
+                                (new AudiobookRowParms(indexedKeyObject, 
                                             Catalog.ReaderWorksOption.SOLO_WORKS)));
                     }                    
-                    if (catalog.getWorks(Audiobook.class, mappedKeyObject,
+                    if (catalog.getWorks(Audiobook.class, indexedKeyObject,
                             Catalog.ReaderWorksOption.GROUP_WORKS).size() > 0) {
                         audiobookVBox.getChildren().add
                             (getAudiobookAccordion
-                                (new AudiobookRowParms(mappedKeyObject, 
+                                (new AudiobookRowParms(indexedKeyObject, 
                                             Catalog.ReaderWorksOption.GROUP_WORKS)));
                     }                    
                 } else {
                     audiobookVBox.getChildren().add
-                        (getAudiobookAccordion(new AudiobookRowParms(mappedKeyObject)));
+                        (getAudiobookAccordion(new AudiobookRowParms(indexedKeyObject)));
                 }
                 previousFirstChar = firstChar;
             }
@@ -1753,7 +1764,7 @@ public class LeBrowser extends Application {
         } 
         catch (InvalidIndexedCollectionQueryException e) {
             alphabetVBox.getChildren().add
-                    (getExceptionLabel(e, mappedKeyClass.getSimpleName()));
+                    (getExceptionLabel(e, indexedKeyClass.getSimpleName()));
         }
         
         ScrollPane alphabetScrollPane = new ScrollPane();
@@ -1786,19 +1797,19 @@ public class LeBrowser extends Application {
     }
             
     private ScrollPane getAudiobookScrollPane
-            (Class<? extends IndexedKey> mappedKeyClass) {
+            (Class<? extends IndexedKey> indexedKeyClass) {
         VBox audiobookVBox = new VBox();
         try {        
-            List<IndexedKey> mappedKeyList 
-                = catalog.getMappedKeyValueList(mappedKeyClass);
-            for (IndexedKey mappedKeyObject : mappedKeyList) {
+            List<IndexedKey> indexedKeyList 
+                = catalog.getIndexedKeyValueList(indexedKeyClass);
+            for (IndexedKey indexedKeyObject : indexedKeyList) {
                 audiobookVBox.getChildren().add
-                    (getAudiobookAccordion(new AudiobookRowParms(mappedKeyObject)));
+                    (getAudiobookAccordion(new AudiobookRowParms(indexedKeyObject)));
             }
         }
         catch (InvalidIndexedCollectionQueryException e) {
             audiobookVBox.getChildren().add
-                    (getExceptionLabel(e, mappedKeyClass.getSimpleName()));
+                    (getExceptionLabel(e, indexedKeyClass.getSimpleName()));
         }
         ScrollPane audiobookBrowser = new ScrollPane();
         audiobookBrowser.setHbarPolicy(ScrollBarPolicy.NEVER);
@@ -1840,7 +1851,7 @@ public class LeBrowser extends Application {
                         VBox myAuthorsVBox = new VBox();
                         try {
                             List<IndexedKey> fullAuthorList 
-                                = catalog.getMappedKeyValueList(Author.class);
+                                = catalog.getIndexedKeyValueList(Author.class);
                             for (IndexedKey author : fullAuthorList) {
                                 if (myList.contains((Author)author)) {
                                     myAuthorsVBox.getChildren().add
@@ -1889,7 +1900,7 @@ public class LeBrowser extends Application {
                         VBox myReadersVBox = new VBox();
                         try {
                             List<IndexedKey> fullReaderList 
-                                = catalog.getMappedKeyValueList(Reader.class);
+                                = catalog.getIndexedKeyValueList(Reader.class);
                             for (IndexedKey reader : fullReaderList) {
                                 if (myList.contains((Reader)reader)) {
                                     if (catalog.getWorks(Audiobook.class, reader, 
@@ -2026,7 +2037,7 @@ public class LeBrowser extends Application {
                     case "Title":
                         try {
                             List<Work> audiobooks = catalog.getWorks
-                                (Audiobook.class, rowParms.mappedKeyObject, 
+                                (Audiobook.class, rowParms.indexedKeyObject, 
                                         rowParms.readerWorksOption, selectedOrderClass)
                                     .subList(rowParms.lowerIndex, rowParms.upperIndex);
                             Work lowAudiobook = audiobooks.get(0);
@@ -2066,13 +2077,13 @@ public class LeBrowser extends Application {
                 }
         } else { 
             try { audiobookCount.set(catalog.getWorks
-                    (Audiobook.class, rowParms.mappedKeyObject, 
+                    (Audiobook.class, rowParms.indexedKeyObject, 
                             rowParms.readerWorksOption, Title.class).size());
             } catch (InvalidIndexedCollectionQueryException e) {}
             /* Count of audiobooks in MyList is dynamic, so Title of TitlePane
                cannot include it. */
-            if (MyList.class.isAssignableFrom(rowParms.mappedKeyObject.getClass())
-                    || MyBookmarks.class.isAssignableFrom(rowParms.mappedKeyObject.getClass())) {
+            if (MyList.class.isAssignableFrom(rowParms.indexedKeyObject.getClass())
+                    || MyBookmarks.class.isAssignableFrom(rowParms.indexedKeyObject.getClass())) {
                 audiobookCountString = "";
             } else {
                 audiobookCountString 
@@ -2080,7 +2091,7 @@ public class LeBrowser extends Application {
             }
         }
         TitledPane titledPane 
-            = new TitledPane(rowParms.mappedKeyObject.toString()
+            = new TitledPane(rowParms.indexedKeyObject.toString()
                             + rowParms.readerWorksOption.getTitle() // v1.3.3
                             + audiobookCountString 
                             + audiobookValueRangeString, 
@@ -2097,9 +2108,9 @@ public class LeBrowser extends Application {
                 if (new_val.isExpanded()) {
                     if (audiobookCount.get() <= MAX_AUDIOBOOK_ROW_SIZE
                             || MyList.class.isAssignableFrom
-                                    (rowParms.mappedKeyObject.getClass())
+                                    (rowParms.indexedKeyObject.getClass())
                             || MyBookmarks.class.isAssignableFrom
-                                    (rowParms.mappedKeyObject.getClass())) {
+                                    (rowParms.indexedKeyObject.getClass())) {
                         if (PersistedAppSettings.getRowAutocloseSetting().equals
                                 (PersistedAppSettings.RowAutocloseSetting.AUTOCLOSE_TRUE)) {
                             findExpandedPanes(ExpandedPanesOption.CLOSE,new_val);
@@ -2126,7 +2137,7 @@ public class LeBrowser extends Application {
                             subgroupVBox.getChildren().add
                                 (getAudiobookAccordion
                                     (new AudiobookRowParms
-                                        (rowParms.mappedKeyObject, 
+                                        (rowParms.indexedKeyObject, 
                                             i * MAX_AUDIOBOOK_ROW_SIZE,
                                             rowParmUpperIndex,
                                             audiobookCount.get(),
@@ -2289,22 +2300,22 @@ public class LeBrowser extends Application {
                 case DETAIL:
                     if (rowParms.upperIndex > 0) {
                         audiobooks = catalog.getWorks
-                            (Audiobook.class, rowParms.mappedKeyObject, 
+                            (Audiobook.class, rowParms.indexedKeyObject, 
                                     rowParms.readerWorksOption, orderClass)
                                 .subList(rowParms.lowerIndex, rowParms.upperIndex);
                     } else {
                         audiobooks = catalog.getWorks
-                            (Audiobook.class, rowParms.mappedKeyObject,
+                            (Audiobook.class, rowParms.indexedKeyObject,
                                     rowParms.readerWorksOption, orderClass);
                     }
                     if (PersistedUserSelectedCollection.class.isAssignableFrom
-                                        (rowParms.mappedKeyObject.getClass())) {
+                                        (rowParms.indexedKeyObject.getClass())) {
                         audiobookSetIdentifier 
-                                = rowParms.mappedKeyObject.toString();
+                                = rowParms.indexedKeyObject.toString();
                     } else {
                         audiobookSetIdentifier 
-                            = rowParms.mappedKeyObject.getClass().getSimpleName() 
-                                    + ": " + rowParms.mappedKeyObject.toString();
+                            = rowParms.indexedKeyObject.getClass().getSimpleName() 
+                                    + ": " + rowParms.indexedKeyObject.toString();
                     }
                     break;
                 case NEWEST:
@@ -2920,7 +2931,7 @@ public class LeBrowser extends Application {
         return searchHBox;
     }
     
-    protected void updateMediaValues(MyBookmarks.Bookmark bookmark) {
+    private void updateMediaValues(MyBookmarks.Bookmark bookmark) {
         if (mediaCurrentTimeLabel != null && mediaTimeSlider != null) {
             Platform.runLater(() -> {
                 Duration mediaCurrentTime;
@@ -4529,28 +4540,28 @@ public class LeBrowser extends Application {
     }
 
     private class AudiobookRowParms {
-        public final IndexedKey mappedKeyObject;
+        public final IndexedKey indexedKeyObject;
         public final int lowerIndex;
         public final int upperIndex;
         public final int supersetSize;
         public final Catalog.ReaderWorksOption readerWorksOption; // v1.3.3
         
         public AudiobookRowParms
-                (IndexedKey mappedKeyObject, int lowerIndex, 
+                (IndexedKey indexedKeyObject, int lowerIndex, 
                         int upperIndex, int supersetSize,
                         Catalog.ReaderWorksOption readerWorksOption) {
-            this.mappedKeyObject = mappedKeyObject;
+            this.indexedKeyObject = indexedKeyObject;
             this.lowerIndex = lowerIndex;
             this.upperIndex = upperIndex;
             this.supersetSize = supersetSize;
             this.readerWorksOption = readerWorksOption;
         }
-        public AudiobookRowParms (IndexedKey mappedKeyObject) {
-            this(mappedKeyObject, 0, 0, 0, Catalog.ReaderWorksOption.ALL_WORKS);
+        public AudiobookRowParms (IndexedKey indexedKeyObject) {
+            this(indexedKeyObject, 0, 0, 0, Catalog.ReaderWorksOption.ALL_WORKS);
         }
-        public AudiobookRowParms (IndexedKey mappedKeyObject,
+        public AudiobookRowParms (IndexedKey indexedKeyObject,
                                     Catalog.ReaderWorksOption readerWorksOption) {
-            this(mappedKeyObject, 0, 0, 0, readerWorksOption);
+            this(indexedKeyObject, 0, 0, 0, readerWorksOption);
         }
     }
     

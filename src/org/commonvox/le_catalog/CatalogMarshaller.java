@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -38,6 +40,7 @@ import org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException;
  */
 public class CatalogMarshaller {
     private static final String CATALOG_XML_RESOURCE = "data/catalog.xml";
+    protected static final String GENRE_CSV_RESOURCE = "data/genres.csv"; // v1.5.1
     private static final String REMOTE_DATA_PATH
             ="https://dl.dropboxusercontent.com/u/2023253/le_data/";
     public static final String DEFAULT_URL_STRING_NEW_AUDIOBOOKS 
@@ -90,9 +93,30 @@ public class CatalogMarshaller {
     
     public static Catalog unmarshalCatalogFromXml (URL url) 
             throws JAXBException {
-        return (Catalog) 
-                JAXBContext.newInstance(Catalog.class).createUnmarshaller()
-                        .unmarshal(url);
+        Catalog unmarshalledCatalog = null;
+        /* Try MAX_ATTEMPTS times if possible timeouts occur. added v1.5.1 */
+        final int MAX_ATTEMPTS = 3;
+        for (int i = 0; i < MAX_ATTEMPTS; i++) {
+            try {
+                unmarshalledCatalog 
+                    = (Catalog) JAXBContext.newInstance(Catalog.class)
+                            .createUnmarshaller().unmarshal(url);
+                return unmarshalledCatalog;
+            } catch (JAXBException exception) {
+                if (exception.getLinkedException().getClass().isAssignableFrom
+                                                (SocketTimeoutException.class)
+                        || exception.getLinkedException().getClass().isAssignableFrom
+                                                (ConnectException.class)) {
+                    if (i == MAX_ATTEMPTS - 1) {
+                        System.out.println("Timeout accessing: " + url);
+                        throw exception;
+                    }
+                } else {
+                    throw exception;
+                }
+            }
+        }
+        return null;
     }
     
     public static Catalog unmarshalCatalogFromXml
@@ -129,7 +153,8 @@ public class CatalogMarshaller {
                     InvocationTargetException,
                     InvalidMultiKeyException,
                     IndexedCollectionBuildFailureException,
-                    InterruptedException {
+                    InterruptedException,
+                    IOException {
         
         Catalog catalog = (Catalog) 
                 JAXBContext.newInstance(Catalog.class).createUnmarshaller()
@@ -145,7 +170,8 @@ public class CatalogMarshaller {
                     InvocationTargetException,
                     InvalidMultiKeyException,
                     IndexedCollectionBuildFailureException,
-                    InterruptedException {
+                    InterruptedException,
+                    IOException {
         if (callback != null) {
             callback.updateTaskMessage("Unmarshalling Catalog from XML.");
         }

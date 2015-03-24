@@ -14,6 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * This package provides a processing/data-access layer for browsing
+ * the contents of the  <a href="http://librivox.org">LibriVox catalog</a>
+ * of M4B public-domain audiobooks. 
+ * <br>
+ * This package serves as the processing/data-access layer of the 
+ * <a href="http://commonvox.org/le-tutorial">LibriVox EXPLORER</a> 
+ * desktop application, a 3-tier application consisting of UI 
+ * (org.commonvox.le_browser), processing/data-access layer 
+ * (org.commonvox.le_catalog), and data-store layer 
+ * (org.commonvox.indexedcollection).
+ */
 @XmlAccessorType(XmlAccessType.PROPERTY)
 package org.commonvox.le_catalog;
 

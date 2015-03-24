@@ -23,7 +23,8 @@ package org.commonvox.indexedcollection;
  * the Comparable interface).
  * @author DanUltra
  * @param <K> the type of key (i.e., the class of object to be wrapped for usage
- * as a Key in an {@link org.commonvox.indexedcollection.IndexNode IndexNode}).
+ * as a Key in an 
+ * {@link org.commonvox.indexedcollection.IndexedCollection IndexedCollection}).
  * {@link org.commonvox.indexedcollection.ClassKey ClassKey} provides an example of
  * implementation of this interface.
  */

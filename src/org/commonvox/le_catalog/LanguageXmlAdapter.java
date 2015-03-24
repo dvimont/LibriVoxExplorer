@@ -20,15 +20,18 @@ package org.commonvox.le_catalog;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- *
+ * This XmlAdapter provides for JAXB unmarshal of a language element into a
+ * {@link Language} instance, rather than a String.
  * @author Daniel Vimont
  */
 public class LanguageXmlAdapter extends XmlAdapter<String, Language> {
     
+    @Override
     public Language unmarshal(String languageString) throws Exception {
         return Language.getInstance(languageString);
     }
  
+    @Override
     public String marshal(Language language) throws Exception {
         return language.toString();
     }

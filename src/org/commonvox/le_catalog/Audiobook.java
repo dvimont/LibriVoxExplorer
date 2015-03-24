@@ -53,78 +53,116 @@ public class Audiobook
         extends Work {
     private static final String IMAGES_PATH = "images/coverArt/";
     private String uniqueKey;
-    protected String urlRss;
-    protected String urlZipFile;
-    protected String urlProject;
-    protected String urlLibrivox;
-    protected String urlOther;
-    protected int durationInSeconds;
-    protected String urlInternetArchive;
-    protected List<Section> sections;
-    protected String urlCoverArt;
-    protected String urlThumbnail;
-    protected List<String> urlM4bFiles;
-    protected int downloadCountInternetArchive;
-    protected String publicationDateInternetArchive;
-    protected Set<Reader> readers;
-    protected List<Language> languages;
-    //private Image coverArtImage = null;
-    //private Image localCoverArtImage = null;
+    private String urlRss;
+    private String urlZipFile;
+    private String urlProject;
+    private String urlLibrivox;
+    private String urlOther;
+    private int durationInSeconds;
+    private String urlInternetArchive;
+    private List<Section> sections;
+    private String urlCoverArt;
+    private String urlThumbnail;
+    private List<String> urlM4bFiles;
+    private int downloadCountInternetArchive;
+    private String publicationDateInternetArchive;
+    private Set<Reader> readers;
+    private List<Language> languages;
+    // protected List<Keyword> keywords; // aborted enhancement
     private boolean coverArtImageUnavailable = false;
     private boolean localCoverArtImageUnavailable = false;
     public static final int NOT_YET_AVAILABLE_INDICATOR = 5000;
     public static final String NO_GENRE_INDICATOR = "_No Genre Assigned";
 
-
+    /**
+     * Default constructor, sets no attributes
+     */
     public Audiobook () {
     }    
     
-    public Audiobook (String lvCatalogUrlString) {
-        this();
-        urlLibrivox = lvCatalogUrlString;
-    }
-    
+    /**
+     * This constructor used in processing/parsing of LibriVox Wiki pages
+     * in which the only Audiobook metadata are the two attributes set here.
+     * @param lvCatalogUrlString URL of audiobook's LibriVox webpage
+     * @param m4bUrlStrings URL(s) of audiobook's M4B file(s)
+     */
     public Audiobook (String lvCatalogUrlString, List<String> m4bUrlStrings) {
-        this(lvCatalogUrlString);
+        this.setUrlLibrivox(lvCatalogUrlString);
         this.setUrlM4bFiles(m4bUrlStrings);
     }
     
+    /**
+     *
+     * @return urlRss
+     */
     @XmlElement(name = "url_rss")
     public String getUrlRss () {
         return urlRss;
     }
     
+    /**
+     *
+     * @param urlString urlRss
+     */
     public void setUrlRss (String urlString) {
         urlRss = urlString;
     }
 
+    /**
+     *
+     * @return urlZipFile
+     */
     @XmlElement(name = "url_zip_file")
     public String getUrlZipFile () {
         return urlZipFile;
     }
     
+    /**
+     *
+     * @param urlString urlZipFile
+     */
     public void setUrlZipFile (String urlString) {
         urlZipFile = urlString;
     }
 
+    /**
+     *
+     * @return url of LV Project
+     */
     @XmlElement(name = "url_project")
     public String getUrlProject () {
         return urlProject;
     }
     
+    /**
+     *
+     * @param urlString url of LV Project
+     */
     public void setUrlProject (String urlString) {
         urlProject = urlString;
     }
 
+    /**
+     *
+     * @return url of LV catalog webpage
+     */
     @XmlElement(name = "url_librivox")
     public String getUrlLibrivox () {
         return urlLibrivox;
     }
     
+    /**
+     *
+     * @param urlString url of LV catalog webpage
+     */
     public void setUrlLibrivox (String urlString) {
         urlLibrivox = urlString;
     }
     
+    /**
+     *
+     * @return url of LV catalog webpage uri encoded (for submission to a browser)
+     */
     @XmlTransient
     public String getUrlLibrivoxUriEncoded () {
         try {
@@ -134,15 +172,27 @@ public class Audiobook
         }
     }
 
+    /**
+     *
+     * @return urlOther from LV API
+     */
     @XmlElement(name = "url_other")
     public String getUrlOther () {
         return urlOther;
     }
     
+    /**
+     *
+     * @param urlString urlOther from LV API
+     */
     public void setUrlOther (String urlString) {
         urlOther = urlString;
     }
 
+    /**
+     *
+     * @return duration of audiobook in seconds
+     */
     @Override
     @XmlElement(name = "totaltimesecs")
     public int getDurationInSeconds () {
@@ -160,85 +210,152 @@ public class Audiobook
         }
     }
     
+    /**
+     *
+     * @param seconds duration of audiobook in seconds
+     */
     public void setDurationInSeconds (int seconds) {
         durationInSeconds = seconds;
     }
 
+    /**
+     *
+     * @return url of audiobook's Internet Archive webpage
+     */
     @XmlElement(name = "url_iarchive")
     public String getUrlInternetArchive () {
         return trimUrl(urlInternetArchive);
     }
     
+    /**
+     *
+     * @param urlString url of audiobook's Internet Archive webpage
+     */
     public void setUrlInternetArchive (String urlString) {
         urlInternetArchive = trimUrl(urlString);
     }
 
+    /**
+     *
+     * @return URL(s) of audiobook's M4B file(s)
+     */
     @XmlElementWrapper(name = "url_m4b_files")
     @XmlElement(name = "url_m4b_file")
     public List<String> getUrlM4bFiles () {
         return urlM4bFiles;
     }
     
-    public void setUrlM4bFiles (List<String> urlStrings) {
+    /**
+     *
+     * @param urlStrings URL(s) of audiobook's M4B file(s)
+     */
+    public final void setUrlM4bFiles (List<String> urlStrings) {
         urlM4bFiles = urlStrings;
     }
     
+    /**
+     *
+     * @return url of audiobook's cover-art jpeg file
+     */
     @XmlElement(name = "url_cover_art")
     public String getUrlCoverArt () {
         return urlCoverArt;
     }
     
+    /**
+     *
+     * @param urlString url of audiobook's cover-art jpeg file
+     */
     public void setUrlCoverArt (String urlString) {
         urlCoverArt = urlString;
     }
     
+    /**
+     *
+     * @return urlThumbnail
+     */
     @XmlElement(name = "url_thumbnail")
     public String getUrlThumbnail () {
         return urlThumbnail;
     }
     
+    /**
+     *
+     * @param urlString urlThumbnail
+     */
     public void setUrlThumbnail (String urlString) {
         urlThumbnail = urlString;
     }
     
+    /**
+     *
+     * @return {@link Section}s of this audiobook
+     */
     @XmlElementWrapper(name = "sections")
     @XmlElement(name = "section")
     public List<Section> getSections () {
         return sections;
     }
     
+    /**
+     *
+     * @param sections {@link Section}s of this audiobook
+     */
     public void setSections (List<Section> sections) {
         this.sections = sections;
     }
 
-    //@Override
+    /**
+     *
+     * @return download count from Internet Archive
+     */
     @XmlElement(name = "download_count_iarchive")
     public int getDownloadCountInternetArchive () {
         return downloadCountInternetArchive;
     }
     
+    /**
+     *
+     * @param downloadCount download count from Internet Archive
+     */
     public void setDownloadCountInternetArchive (int downloadCount) {
         this.downloadCountInternetArchive = downloadCount;
     }
     
+    /**
+     *
+     * @return download count from Internet Archive in {@link Downloads} wrapper class
+     */
     @XmlTransient
     public Downloads getDownloadsKey () {
         return new Downloads(this.getDownloadCountInternetArchive());
     }
     
-    //@Override
+    /**
+     *
+     * @return publication date on Internet Archive in format "yyyy-MM-dd HH:mm:ss"
+     */
     @XmlElement(name = "pub_date_iarchive")
     public String getPublicationDateInternetArchive () {
         return publicationDateInternetArchive;
     }
     
+    /**
+     *
+     * @param dateString publication date on Internet Archive
+     * @throws ParseException if not valid date in format "yyyy-MM-dd HH:mm:ss"
+     */
     public void setPublicationDateInternetArchive (String dateString) 
             throws ParseException {
         Date date = DATE_VALIDATOR.parse(dateString);
         publicationDateInternetArchive = dateString;
     }
     
-    @XmlTransient
+    /**
+     *
+     * @return publication date on Internet Archive in {@link PublicationDate} wrapper
+     */
+    @XmlTransient 
     public PublicationDate getPublicationDateKey () {
         /*
         if (this.getPublicationDateInternetArchive() == null) {
@@ -248,6 +365,10 @@ public class Audiobook
         return new PublicationDate(String.format("%09d", this.getDaysAvailable()));
     }
 
+    /**
+     *
+     * @return unique key value for this object
+     */
     @Override
     @XmlTransient
     public String getKeyItem () {
@@ -257,10 +378,17 @@ public class Audiobook
         return uniqueKey;
     }
     
-    protected void setKeyItem() {
+    /**
+     * sets unique key value for this object based on {@link Work#librivoxId librivoxId}
+     */
+    private void setKeyItem() {
         uniqueKey = String.format("%08d00000000", Integer.parseInt(librivoxId));
     }
     
+    /**
+     *
+     * @return {@link Work#getCleanedTitle() title} of audiobook in a {@link Title} wrapper
+     */
     @Override
     @XmlTransient
     public Title getTitleKey () {
@@ -275,17 +403,24 @@ public class Audiobook
         }
     }
 
+    /**
+     *
+     * @return {@link Reader}(s) of this audiobook
+     */
     @Override
     @XmlTransient
     public List<Reader> getReaders () {
         if (readers == null) {
             return null;
         }
-        return new ArrayList<Reader>(readers);
+        return new ArrayList<>(readers);
     }
     
+    /**
+     * set {@link Reader}(s) of this audiobook
+     */
     protected void setReaders() {
-        readers = new TreeSet<Reader>();
+        readers = new TreeSet<>();
         if (this.sections == null) {
             return;
         }
@@ -298,6 +433,10 @@ public class Audiobook
         }
     }
     
+    /**
+     *
+     * @return List of {@link Language}s from all {@link Section}s of Audiobook
+     */
     @XmlTransient
     public List<Language> getAllLanguages() {
         if (languages == null) {
@@ -340,9 +479,13 @@ public class Audiobook
                 languageSet.add(section.getLanguage());
             }
         }
-        languages = new ArrayList<Language>(languageSet);
+        languages = new ArrayList<>(languageSet);
     }
     
+    /**
+     * Adds {@link Author}s from the audiobook's {@link Section}s to the 
+     * audiobook's Author list.
+     */
     protected void addAuthorsFromSections() {
         if (this.sections == null) {
             return;
@@ -371,7 +514,10 @@ public class Audiobook
         }
     }
 
-    //@Override
+    /**
+     *
+     * @return count of days audiobook has been available on Internet Archive
+     */
     @XmlTransient
     protected int getDaysAvailable () {
         long daysAvailable = 0;
@@ -395,6 +541,10 @@ public class Audiobook
         return (int) daysAvailable;
     }
     
+    /**
+     *
+     * @return average downloads per day (from Internet Archive) of audiobook
+     */
     @XmlTransient
     public double getDownloadsPerDay () {
         double downloadsPerDay = 0;
@@ -407,12 +557,21 @@ public class Audiobook
         return downloadsPerDay;
     }
     
+    /**
+     *
+     * @return average downloads per day (from Internet Archive) of audiobook - in
+     * a {@link DownloadsPerDay} wrapper
+     */
     @XmlTransient
     public DownloadsPerDay getDownloadsPerDayKey () {
         return new DownloadsPerDay
                     (java.math.BigDecimal.valueOf(this.getDownloadsPerDay()));
     }
     
+    /**
+     *
+     * @return url of locally-stored cover art jpeg file
+     */
     @XmlTransient
     public String getUrlLocalCoverArt () {
         if (this.getUrlCoverArt() == null) {
@@ -431,7 +590,7 @@ public class Audiobook
     
     /**
      *
-     * @return cover art image for the audiobook, which may still
+     * @return Cover art Image for the audiobook, which may still
      * be background loading when returned. Thus, when necessary, appropriate 
      * logic (listeners, etc.) should be employed to determine when image 
      * loading is complete (i.e., when image.getProgress() == 1).
@@ -466,7 +625,7 @@ public class Audiobook
     
     /**
      *
-     * @return locally stored (thumbnail) cover art image for the audiobook, 
+     * @return Locally stored (reduced-quality) cover art image for the audiobook, 
      * which may still be background loading when returned. Thus, when 
      * necessary, appropriate logic (listeners, etc.) should be employed to 
      * determine when image loading is complete (i.e., when 
@@ -474,15 +633,6 @@ public class Audiobook
      */
     @XmlTransient
     public Image getLocalCoverArtImage () {
-        /*
-        if (localCoverArtImage != null) {
-            if (localCoverArtImage.isError()) { // image loaded in previous call
-                return null;
-            } else {
-                return localCoverArtImage;
-            }
-        }
-        */
         if (localCoverArtImageUnavailable) {
             return null;
         }
@@ -500,6 +650,10 @@ public class Audiobook
         return localCoverArtImage;
     }
     
+    /**
+     *
+     * @return total size of M4B files found at {@link Audiobook#getUrlM4bFiles() urlM4bFiles}
+     */
     @XmlTransient
     public long getM4bSize () {
         long m4bSize = 0;
@@ -513,8 +667,23 @@ public class Audiobook
         return m4bSize;
     }
     
+    /**
+     * Downloads the audiobook's {@link Audiobook#getUrlM4bFiles() urlM4bFiles}
+     * and saves them to the directory denoted by targetPath parameter.
+     * @param targetPath directory into which downloaded M4B files to be saved
+     * @param callback (optional) for callback to UI for tracking progress
+     * @throws IOException if any of {@link Audiobook#getUrlM4bFiles() urlM4bFiles} 
+     * inaccessible, or if there is a problem saving any file locally
+     * @throws InterruptedException if thread is canceled
+     */
     public void downloadM4bFiles (File targetPath, CatalogCallback callback) 
-            throws MalformedURLException, IOException, InterruptedException {
+            throws IOException, InterruptedException {
+        if (this.urlM4bFiles == null || this.urlM4bFiles.isEmpty()) {
+            return;
+        }
+        if (callback == null) {
+            callback = new CatalogCallback(){}; 
+        }
         int fileCount = 0;
         ReturnCode downloadResult = null;
         for (String m4bUrlString : this.urlM4bFiles) {
@@ -543,17 +712,22 @@ public class Audiobook
         callback.updateSubtasks(fileCount, this.urlM4bFiles.size());
     }
     
-    public static String uriEncode (String rawUrl) {
+    private static String uriEncode (String rawUrl) {
         return rawUrl.replace(":", "%3A").replace("/","%2F");
     }
     
+    /**
+     * For testing/debugging.
+     * @return extended print-out of audiobook's attributes
+     */
     @Override
     public String toStringVerbose() {
         StringBuilder output = new StringBuilder();
         output.append("  TITLE: ").append(this.getCleanedTitle()).append("\n");
         output.append("    Date of publication: ")
                 .append(this.getPublicationDateInternetArchive())
-                .append("  (LibriVox ID = " + this.getLibrivoxIdKey())
+                .append("  (LibriVox ID = ")
+                .append(this.getLibrivoxIdKey())
                 .append(")\n");
         output.append(outputListHorizontally(Author.class));
         output.append(outputListHorizontally(Reader.class));
@@ -566,36 +740,37 @@ public class Audiobook
                 .append("\n");
         return output.toString();
     }
+    
     private String outputListHorizontally 
-            (Class<? extends IndexedKey> mappedKeyClass) {
+            (Class<? extends IndexedKey> indexedKeyClass) {
         StringBuilder printedList = new StringBuilder();
         boolean labelPrinted = false;
         List<? extends IndexedKey> list = null;
-        if (mappedKeyClass == Reader.class) {
+        if (indexedKeyClass == Reader.class) {
             list = this.getReaders();
-        } else if (mappedKeyClass == Genre.class) {
+        } else if (indexedKeyClass == Genre.class) {
             list = this.getGenres();
-        } else if (mappedKeyClass == Author.class) {
+        } else if (indexedKeyClass == Author.class) {
             list = this.getAuthors();
-        } else if (mappedKeyClass == Language.class) {
-            List<Language> languages = new ArrayList<>();
-            languages.add(this.getLanguage());
-            list = languages;
+        } else if (indexedKeyClass == Language.class) {
+            List<Language> languageList = new ArrayList<>();
+            languageList.add(this.getLanguage());
+            list = languageList;
         }
         if (list == null || list.isEmpty()) {
             return printedList.toString();
         }
-        for (IndexedKey mappedKeyItem : list) {
+        for (IndexedKey indexedKeyItem : list) {
             if (!labelPrinted) {
                 labelPrinted = true;
                 printedList.append(super.BLANKS.substring
-                    (mappedKeyClass.getSimpleName().length()));
+                    (indexedKeyClass.getSimpleName().length()));
                 printedList.append
-                    (mappedKeyClass.getSimpleName().toUpperCase());
+                    (indexedKeyClass.getSimpleName().toUpperCase());
                 printedList.append("(s): ");
-                printedList.append(mappedKeyItem.getKeyItem());
+                printedList.append(indexedKeyItem.getKeyItem());
             } else {
-                printedList.append("; ").append(mappedKeyItem.getKeyItem());
+                printedList.append("; ").append(indexedKeyItem.getKeyItem());
             }
         }
         if (labelPrinted) {

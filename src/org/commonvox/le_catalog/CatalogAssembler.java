@@ -45,10 +45,10 @@ import javax.xml.bind.JAXBException;
 
 /**
  *
- * @author dvimont
+ * @author Daniel Vimont
  */
 public class CatalogAssembler {
-    private static final int MAX_LIBRIVOX_ID  = 9500;
+    private static final int MAX_LIBRIVOX_ID  = 9999;
     /** searches for "href" attribute with "http" or "https" url value 
      NOTE: 2015-02-10 added \s to the regex to allow whitespace between 
      quote and http */
@@ -94,22 +94,28 @@ public class CatalogAssembler {
      * @throws RemoteApiProcessingException
      * @throws IOException
      * @throws ParseException
+     * @throws java.lang.InterruptedException
      */
     public static void assembleCompleteCatalog(String currentBuildPath, 
                                                 int startingId, int processingLimit) 
             throws JAXBException, MalformedURLException,
                     IllegalAccessException, RemoteApiProcessingException,
-                    IOException, ParseException {
+                    IOException, ParseException, InterruptedException {
         
-        File stage01XmlFile = new File(currentBuildPath + STAGE01_FILE_NAME);
-        File stage02XmlFile = new File(currentBuildPath + STAGE02_FILE_NAME);
-        File stage03XmlFile = new File(currentBuildPath + STAGE03_FILE_NAME);
-        File stage04XmlFile = new File(currentBuildPath + STAGE04_FILE_NAME);
-        //File stage05XmlFile = new File(currentBuildPath + STAGE05_FILE_NAME);
-        File stage06XmlFile = new File(currentBuildPath + STAGE06_FILE_NAME);
-        File stage07XmlFile = new File(currentBuildPath + STAGE07_FILE_NAME);
+        File stage01XmlFile 
+                    = Paths.get(currentBuildPath, STAGE01_FILE_NAME).toFile();
+        File stage02XmlFile 
+                    = Paths.get(currentBuildPath, STAGE02_FILE_NAME).toFile();
+        File stage03XmlFile 
+                    = Paths.get(currentBuildPath, STAGE03_FILE_NAME).toFile();
+        File stage04XmlFile 
+                    = Paths.get(currentBuildPath, STAGE04_FILE_NAME).toFile();
+        File stage06XmlFile 
+                    = Paths.get(currentBuildPath, STAGE06_FILE_NAME).toFile();
+        File stage07XmlFile 
+                    = Paths.get(currentBuildPath, STAGE07_FILE_NAME).toFile();
         File stage07XmlFormattedFile 
-                    = new File(currentBuildPath + STAGE07_FORMATTED_FILE_NAME);
+                = Paths.get(currentBuildPath, STAGE07_FORMATTED_FILE_NAME).toFile();
         
         
         System.out.println("** COMMENCING FULL ASSEMBLY OF CATALOG ** "
@@ -153,7 +159,7 @@ public class CatalogAssembler {
     protected static Catalog assembleCatalogStage01 (Catalog currentCatalog, 
                                                         int restartId, 
                                                         int processingLimit) 
-            throws JAXBException, MalformedURLException {
+            throws JAXBException, MalformedURLException, InterruptedException {
         final String LV_API_CALL
             = "https://librivox.org/api/feed/audiobooks/?id=%s&extended=1&format=xml";
         String apiCallString;
@@ -180,6 +186,7 @@ public class CatalogAssembler {
         
         int processingCount = 0;
         for (int idCount = restartId ; idCount <= MAX_LIBRIVOX_ID ; idCount++ ) {
+            if (Thread.interrupted()) { throw new InterruptedException(); }
             apiCallString = String.format(LV_API_CALL, idCount);
             try {
                 Catalog apiCatalog 
@@ -221,7 +228,7 @@ public class CatalogAssembler {
     }
     
     protected static Catalog assembleCatalogStage01 (Catalog currentCatalog) 
-            throws JAXBException, MalformedURLException {
+            throws JAXBException, MalformedURLException, InterruptedException {
         String lastId 
                 = currentCatalog.audiobooks.get(currentCatalog.audiobooks.size() - 1).getId();
         int restartId = Integer.parseInt(lastId) + 1;
@@ -229,7 +236,7 @@ public class CatalogAssembler {
     }
 
     protected static Catalog assembleCatalogStage01 (int restartId, int processingLimit) 
-        throws JAXBException, MalformedURLException {
+            throws JAXBException, MalformedURLException, InterruptedException {
         return assembleCatalogStage01(null, restartId, processingLimit);
     }
     
@@ -240,7 +247,7 @@ public class CatalogAssembler {
      */
     protected static Catalog assembleCatalogStage02 (Catalog catalog)
             throws IllegalAccessException, JAXBException, 
-                    RemoteApiProcessingException {
+                    RemoteApiProcessingException, InterruptedException {
         int audiobooksProcessedCount = 0;
         int audiobooksCoverArtUrlFoundCount = 0;
         int audiobooksMultipleAuthorsCount = 0;
@@ -258,6 +265,7 @@ public class CatalogAssembler {
         
         audiobookLoop:
         for (Audiobook audiobook : catalog.audiobooks) {
+            if (Thread.interrupted()) { throw new InterruptedException(); }
             audiobooksProcessedCount++;
             if (audiobooksProcessedCount % 100 == 0) {
                 System.out.println(audiobooksProcessedCount 
@@ -307,7 +315,7 @@ public class CatalogAssembler {
                                 + " processing audiobook with ID=" + audiobook.getId()
                                 + " with LibriVox Catalog webpage at URL: " 
                                 + audiobook.getUrlLibrivox());
-                    e.printStackTrace();
+                    // e.printStackTrace();
             }
             for (Author author : audiobook.getAuthors()) {
                 if (!author.getId().equals("18")) {
@@ -346,7 +354,7 @@ public class CatalogAssembler {
                                 + " processing audiobook with ID=" + audiobook.getId()
                                 + " with LibriVox Catalog webpage at URL: " 
                                 + audiobook.getUrlLibrivox());
-                    e.printStackTrace();
+                    // e.printStackTrace();
                 }
                 break;
             }
@@ -368,76 +376,9 @@ public class CatalogAssembler {
         return catalog;
     }
 
-    /** Get cover art URLs from LibriVox webpages */
-    /*
-    protected static Catalog assembleCatalogStage02b (Catalog catalog)
-            throws IllegalAccessException, JAXBException, 
-                    RemoteApiProcessingException {
-        int audiobooksProcessedCount = 0;
-        int audiobooksWithExceptionsCount = 0;
-        int metadataExtractionExceptionCount = 0;
-        int ioExceptionCount = 0;
-        Audiobook audiobookFragment = null;
-        
-        System.out.println("==============================");
-        System.out.println("Stage 2b processing initiated. " 
-                            + new Timestamp(System.currentTimeMillis()));
-        System.out.println("==============================");
-        
-        audiobookLoop:
-        for (Audiobook audiobook : catalog.audiobooks) {
-            audiobooksProcessedCount++;
-            if (audiobooksProcessedCount % 100 == 0) {
-                System.out.println(audiobooksProcessedCount 
-                        + " audiobooks processed so far. "
-                        + new Timestamp(System.currentTimeMillis()));
-            }
-            if (audiobook.getId() == null || audiobook.getId().equals("")) {
-                continue;
-            }
-            try {
-                audiobookFragment = extractCoverArtUrls(audiobook.getUrlLibrivox());
-                if (audiobookFragment == null 
-                        || audiobookFragment.getUrlCoverArt() == null
-                        || audiobookFragment.getUrlCoverArt().isEmpty()) {
-                    throw new MetadataExtractionException
-                        ("No CoverArt URL found for audiobook" 
-                            + " with ID = " + audiobook.getId());
-                } else {
-                    audiobook.setUrlCoverArt(audiobookFragment.getUrlCoverArt());
-                }
-            } catch (MetadataExtractionException | IOException e) {
-                    audiobooksWithExceptionsCount++;
-                    String exceptionLabel = "Exception";
-                    if (e instanceof MetadataExtractionException) {
-                        metadataExtractionExceptionCount++;
-                        exceptionLabel = METADATA_EXTRACTION_LABEL;
-                    } else if (e instanceof IOException) {
-                        ioExceptionCount++;
-                        exceptionLabel = IO_LABEL;
-                    }
-                    System.err.println
-                        (">>>> " + exceptionLabel + " problem encountered while" 
-                                + " processing audiobook with ID=" + audiobook.getId()
-                                + " with LibriVox Catalog webpage at URL: " 
-                                + audiobook.getUrlLibrivox());
-                    e.printStackTrace();
-            }
-        }
-        System.out.println("==============================");
-        System.out.println("Stage 2b processing completed. "
-                        + new Timestamp(System.currentTimeMillis()));
-        System.out.println(audiobooksProcessedCount + " audiobooks processed.");
-        System.out.println(metadataExtractionExceptionCount 
-                + " audiobooks with webpages from which metadata could not be extracted.");
-        System.out.println(ioExceptionCount 
-                + " audiobooks with webpages inaccessible.");
-        return catalog;
-    }
-    */
-    
     protected static Catalog assembleCatalogStage03 (Catalog catalog) 
-            throws IOException, ParseException, IllegalAccessException {
+            throws IOException, ParseException, IllegalAccessException,
+                InterruptedException {
         return assembleCatalogStage03(catalog, false);
     }
     
@@ -448,7 +389,8 @@ public class CatalogAssembler {
      * Since download-count metadata must be updated at regular intervals, this
      * method may be called in "overwrite" mode (via the boolean parameter). */
     protected static Catalog assembleCatalogStage03 (Catalog catalog, boolean overwrite) 
-            throws IOException, ParseException, IllegalAccessException {
+            throws IOException, ParseException, IllegalAccessException,
+                InterruptedException {
         final String JSON_LABEL = "JSON Parsing";
         int audiobooksProcessedCount = 0;
         int audiobooksBypassedCount = 0;
@@ -469,6 +411,7 @@ public class CatalogAssembler {
         
         audiobookLoop:
         for (Audiobook audiobook : catalog.audiobooks) {
+            if (Thread.interrupted()) { throw new InterruptedException(); }
             audiobooksProcessedCount++;
             if (audiobooksProcessedCount % 100 == 0) {
                 System.out.println(audiobooksProcessedCount 
@@ -574,7 +517,7 @@ public class CatalogAssembler {
     }
 
     protected static Catalog assembleCatalogStage04 (String urlStringsFilePath)
-            throws IOException { 
+            throws IOException, InterruptedException { 
         boolean showBadLinks;
         return CatalogAssembler.assembleCatalogStage04
                                 ((showBadLinks = false), urlStringsFilePath);
@@ -585,9 +528,8 @@ public class CatalogAssembler {
      * (2) URL(s) for item's M4B file(s) 
      */
     protected static Catalog assembleCatalogStage04
-        (boolean showBadLinks, String urlStringsFilePath)
-            throws IOException 
-    {
+            (boolean showBadLinks, String urlStringsFilePath)
+                throws IOException, InterruptedException {
         /** searches for "li" element (non-greedily) */
         final String REGEX_LI_ELEMENT = "\\<li .*?\\</li\\>";
         /** searches inside "li" element for attribute 'class="gallerybox"' */
@@ -664,6 +606,7 @@ public class CatalogAssembler {
         }
 
         for (String urlString : urlStrings) {
+            if (Thread.interrupted()) { throw new InterruptedException(); }
             webpageContent = CatalogAssembler.getHttpContent(urlString);
 
             /** Search html content for LibriVox Catalog for each item's 
@@ -708,9 +651,6 @@ public class CatalogAssembler {
                         itemTitle = titleMatcher.group().substring
                                     (3, titleMatcher.group().length() - 1);
                     } 
-                    //else {
-                    //    itemTitle = "TITLE NOT FOUND";
-                    //}
 
                     gallerytextMatcher = gallerytextPattern.matcher
                                             (liElementMatcher.group());
@@ -727,13 +667,7 @@ public class CatalogAssembler {
                                                 (hrefMatcher.group()).find())
                             {
                                 badLinkFound = true;
-                                //System.out.println
-                                 //   ("  QUESTIONABLE LINK: " + hrefMatcher.group());
                             }
-                        }
-                        if (!badLinkFound) {
-                            //System.out.println
-                            //        ("  NO CATALOG LINK FOUND.");
                         }
                     }
                 }
@@ -751,105 +685,14 @@ public class CatalogAssembler {
         return catalog;
     }
         
-    /** STAGE 5: For all Stage 4 results, extract audiobook unique ID from each 
-     * audiobook's LibriVox catalog webpage. (ID serves as link for incorporation
-     * of Stage 4's M4B metadata into master catalog.)
-     */
-    /*
-    protected static Catalog assembleCatalogStage05 (Catalog catalog) {
-        final String REGEX_HREF_LIBRIVOX_RSS 
-            = "href\\=\"https?://(www\\.)?librivox\\.org/rss/.*?\"";
-        final String REGEX_RSS_PATH = "rss/.*?\"";
-        final Pattern rssHrefPattern
-                = Pattern.compile(REGEX_HREF_LIBRIVOX_RSS, Pattern.CASE_INSENSITIVE);
-        Matcher rssHrefMatcher;
-        final Pattern rssPattern
-                = Pattern.compile(REGEX_RSS_PATH, Pattern.CASE_INSENSITIVE);
-        Matcher rssMatcher;
-
-        int audiobooksProcessedCount = 0;
-        int audiobooksWithIOExceptionsCount = 0;
-        int audiobooksBypassedCount = 0;
-
-        System.out.println("=============================");
-        System.out.println("Stage 5 processing initiated. "
-                            + new Timestamp(System.currentTimeMillis()));
-        System.out.println("=============================");
-
-        for (Audiobook audiobook : catalog.audiobooks) {
-            audiobooksProcessedCount++;
-            if (audiobooksProcessedCount % 100 == 0) {
-                System.out.println(audiobooksProcessedCount 
-                        + " audiobooks processed so far. "
-                        + new Timestamp(System.currentTimeMillis()));
-            }
-            if (!(audiobook.getId() == null || audiobook.getId().isEmpty())) {
-                audiobooksBypassedCount++;
-                continue;
-            }
-            try {
-                audiobook.setId(getLibrivoxIdFromWebPage(audiobook.getUrlLibrivox()));
-//                String webpageContent = getHttpContent(audiobook.getUrlLibrivox());
-//                rssHrefMatcher = rssHrefPattern.matcher(webpageContent);
-//                if (rssHrefMatcher.find()) {
-//                    rssMatcher = rssPattern.matcher(rssHrefMatcher.group());
-//                    if (rssMatcher.find()) {
-//                        audiobook.setId(rssMatcher.group()
-//                               .substring(4, (rssMatcher.group().length() - 1)));
-//                    }
-//                }
-            } catch (IOException e) {
-                audiobooksWithIOExceptionsCount++;
-                System.err.println
-                    (">>>> IOException caught during processing of audiobook with URL: " 
-                                                + audiobook.getUrlLibrivox());
-                e.printStackTrace();
-            }
-        }
-        System.out.println("=============================");
-        System.out.println("Stage 5 processing completed. "
-                                + new Timestamp(System.currentTimeMillis()));
-        System.out.println(audiobooksProcessedCount + " audiobooks processed.");
-        System.out.println(audiobooksBypassedCount + " audiobooks bypassed.");
-        System.out.println(audiobooksWithIOExceptionsCount 
-                                + " audiobooks encountered IOException.");
-        return catalog;
-    }
-    */
-    /*
-    protected static String getLibrivoxIdFromWebPage (String urlString)
-            throws IOException {
-        final String REGEX_HREF_LIBRIVOX_RSS 
-            = "href\\=\"https?://(www\\.)?librivox\\.org/rss/.*?\"";
-        final String REGEX_RSS_PATH = "rss/.*?\"";
-        final Pattern rssHrefPattern
-                = Pattern.compile(REGEX_HREF_LIBRIVOX_RSS, Pattern.CASE_INSENSITIVE);
-        Matcher rssHrefMatcher;
-        final Pattern rssPattern
-                = Pattern.compile(REGEX_RSS_PATH, Pattern.CASE_INSENSITIVE);
-        Matcher rssMatcher;
-        
-        String librivoxId = null;
-        String webpageContent = getHttpContent(urlString);
-        rssHrefMatcher = rssHrefPattern.matcher(webpageContent);
-        if (rssHrefMatcher.find()) {
-            rssMatcher = rssPattern.matcher(rssHrefMatcher.group());
-            if (rssMatcher.find()) {
-                librivoxId = rssMatcher.group()
-                       .substring(4, (rssMatcher.group().length() - 1));
-            }
-        }
-        return librivoxId;
-    }
-    */
-        
     /* v1.4.3 bypass/deprecate Stage 5 processing; go straight from stage 4 to 6 */
     /** STAGE 6: Incorporate M4B metadata from Stage 4 into catalog from Stage 3.
      * @param stage3Catalog
      * @param stage4Catalog
      * @return  */
     protected static Catalog assembleCatalogStage06 
-                        (Catalog stage3Catalog, Catalog stage4Catalog) {
+                    (Catalog stage3Catalog, Catalog stage4Catalog) 
+                        throws InterruptedException {
         
         System.out.println("=============================");
         System.out.println("Stage 6 processing initiated. "
@@ -863,6 +706,7 @@ public class CatalogAssembler {
         int noLibrivoxUrlCount = 0;
         Map<String,Audiobook> stage3AudiobooksUrlMap = new TreeMap<>();
         for (Audiobook audiobook : stage3Catalog.audiobooks) {
+            if (Thread.interrupted()) { throw new InterruptedException(); }
             // note that audiobooks w/o LV url are here removed from processing
             if (audiobook.getUrlLibrivox() == null
                     || audiobook.getUrlLibrivox().isEmpty()) {
@@ -921,74 +765,10 @@ public class CatalogAssembler {
         return stage3Catalog;
     }
 
-    
-    /** STAGE 6: Incorporate M4B metadata from Stage 5 into catalog from Stage 3. */
-    /*
-    protected static Catalog assembleCatalogStage06 
-                        (Catalog stage3Catalog, Catalog stage5Catalog) {
-        
-        System.out.println("=============================");
-        System.out.println("Stage 6 processing initiated. "
-                            + new Timestamp(System.currentTimeMillis()));
-        System.out.println("=============================");
-
-        int audiobooksProcessedCount = 0;
-        int goodRecordCount = 0;
-        int badRecordCount = 0;
-        int missingFromStage3Count = 0;
-        Audiobook[] stage3AudiobookArray 
-                        = new Audiobook[stage3Catalog.audiobooks.size()];
-        stage3AudiobookArray
-                = stage3Catalog.audiobooks.toArray(stage3AudiobookArray);
-        for (Audiobook stage4Audiobook : stage5Catalog.audiobooks) {
-            audiobooksProcessedCount++;
-            if (stage4Audiobook.getId() == null
-                    || stage4Audiobook.getId().isEmpty()
-                    || stage4Audiobook.getUrlM4bFiles() == null
-                    || stage4Audiobook.getUrlM4bFiles().isEmpty()) {
-                badRecordCount++;
-            } else {
-                goodRecordCount++;
-                int returnValue
-                    = Arrays.binarySearch
-                        (stage3AudiobookArray, stage4Audiobook);
-                if (returnValue >= 0) {
-                    Audiobook stage3Audiobook 
-                            = stage3Catalog.audiobooks.get(returnValue);
-                    if (stage3Audiobook.getUrlM4bFiles() == null
-                            || stage3Audiobook.getUrlM4bFiles().isEmpty()) {
-                        stage3Audiobook.setUrlM4bFiles
-                                        (stage4Audiobook.getUrlM4bFiles());
-                    }
-                } else {
-                    missingFromStage3Count++;
-                    System.out.println(">>> Audiobook with ID=" 
-                            + stage4Audiobook.getId() 
-                            + " not found in Stage 3 catalog.");
-                }
-            }
-        }
-        System.out.println("=============================");
-        System.out.println("Stage 6 processing completed. "
-                                + new Timestamp(System.currentTimeMillis()));
-        System.out.println(audiobooksProcessedCount + " stage 5 records processed.");
-        System.out.println(goodRecordCount 
-                + " records with M4B metadata and audiobook ID.");
-        System.out.println(badRecordCount 
-                + " records without M4B metadata and/or audiobook ID.");
-        System.out.println(missingFromStage3Count + " records from stage 5 " 
-                + "processing not found in master (stage 3) catalog.");
-        System.out.println("*****");
-        System.out.println(stage3Catalog.audiobooks.size() 
-                + " audiobooks total now in master catalog.");
-        
-        return stage3Catalog;
-    }
-    */
-    
     /** STAGE 7: Remove from catalog all audiobooks that are missing
      * vital metadata. */
-    protected static Catalog assembleCatalogStage07 (Catalog catalog) {
+    protected static Catalog assembleCatalogStage07 (Catalog catalog)
+            throws InterruptedException {
         System.out.println("=============================");
         System.out.println("Stage 7 processing initiated. "
                             + new Timestamp(System.currentTimeMillis()));
@@ -1000,6 +780,7 @@ public class CatalogAssembler {
 
         Catalog stage07Catalog = new Catalog();
         for (Audiobook audiobook : catalog.audiobooks) {
+            if (Thread.interrupted()) { throw new InterruptedException(); }
             audiobooksProcessedCount++;
             if (audiobook.getUrlLibrivox() == null
                     || audiobook.getUrlLibrivox().isEmpty()
@@ -1026,28 +807,35 @@ public class CatalogAssembler {
     }
     
     public static void assembleDeltaCatalog (String previousBuildPath, 
-                                                String currentBuildPath) 
-            throws JAXBException {
-        File previousStage07XmlFile = new File(previousBuildPath + STAGE07_FILE_NAME);
-        File currentStage07XmlFile = new File(currentBuildPath + STAGE07_FILE_NAME);
-        File deltaXmlFile = new File(currentBuildPath + DELTA_FILE_NAME);
+                                                String currentBuildPath,
+                                                boolean deltaSuppressCoverArtChange) 
+            throws JAXBException, InterruptedException {
+        System.out.println("===========================");
+        System.out.println("Delta processing initiated. "
+                            + new Timestamp(System.currentTimeMillis()));
+        System.out.println("===========================");
+        File previousStage07XmlFile 
+                    = Paths.get(previousBuildPath, STAGE07_FILE_NAME).toFile();
+        File currentStage07XmlFile 
+                    = Paths.get(currentBuildPath, STAGE07_FILE_NAME).toFile();
+        File deltaXmlFile 
+                    = Paths.get(currentBuildPath, DELTA_FILE_NAME).toFile();
         File deltaXmlFormattedFile 
-                    = new File(currentBuildPath + DELTA_FORMATTED_FILE_NAME);
+                = Paths.get(currentBuildPath, DELTA_FORMATTED_FILE_NAME).toFile();
         Catalog previousStage07Catalog 
                 = CatalogMarshaller.unmarshalCatalogFromXml(previousStage07XmlFile);
         Catalog currentStage07Catalog
                 = CatalogMarshaller.unmarshalCatalogFromXml(currentStage07XmlFile);
         Catalog deltaCatalog = getDeltaCatalog
-                                (previousStage07Catalog, currentStage07Catalog);
+                                (previousStage07Catalog, currentStage07Catalog,
+                                        deltaSuppressCoverArtChange);
         CatalogMarshaller.marshalCatalogToXml(deltaCatalog, deltaXmlFile);
         CatalogMarshaller.marshalCatalogToXml(deltaCatalog, deltaXmlFormattedFile, true);
     }
      
-    protected static Catalog getDeltaCatalog (Catalog oldCatalog, Catalog newCatalog) {
-        System.out.println("===========================");
-        System.out.println("Delta processing initiated. "
-                            + new Timestamp(System.currentTimeMillis()));
-        System.out.println("===========================");
+    protected static Catalog getDeltaCatalog (Catalog oldCatalog, 
+                        Catalog newCatalog, boolean deltaSuppressCoverArtChange) 
+            throws InterruptedException {
         System.out.println("Size of old audiobook array = " + oldCatalog.audiobooks.size());
         System.out.println("Size of new audiobook array = " + newCatalog.audiobooks.size());
         
@@ -1056,6 +844,7 @@ public class CatalogAssembler {
         Audiobook[] oldAudiobookArray = new Audiobook[oldCatalog.audiobooks.size()];
         oldAudiobookArray = oldCatalog.audiobooks.toArray(oldAudiobookArray);
         for (Audiobook newAudiobook : newCatalog.audiobooks) {
+            if (Thread.interrupted()) { throw new InterruptedException(); }
             int returnValue = Arrays.binarySearch(oldAudiobookArray, newAudiobook);
             if (returnValue < 0) {
                 System.out.println("  New audiobook ID: " + newAudiobook.getId());
@@ -1065,8 +854,9 @@ public class CatalogAssembler {
                 if (newAudiobook.getUrlCoverArt() != null
                         && !newAudiobook.getUrlCoverArt().isEmpty()) {
                     if (oldAudiobook.getUrlCoverArt() == null
-                            || !newAudiobook.getUrlCoverArt().equals
-                                                (oldAudiobook.getUrlCoverArt())) {
+                            || (!deltaSuppressCoverArtChange &&
+                                    !newAudiobook.getUrlCoverArt().equals
+                                                (oldAudiobook.getUrlCoverArt()))) {
                         System.out.println
                             ("  Changed UrlCoverARt -- audiobook ID: " + newAudiobook.getId());
                         deltaCatalog.audiobooks.add(newAudiobook);
@@ -1121,7 +911,9 @@ public class CatalogAssembler {
         final String JSON_KEYNAME_identifier = "identifier";
         final String JSON_KEYNAME_publicdate = "publicdate";
         final String JSON_KEYNAME_downloads = "downloads";
+        // final String JSON_KEYNAME_subject = "subject"; // aborted enhancement
         final String JSON_KEYNAME_SUFFIX_mp3 = ".mp3";
+        final String JSON_KEYNAME_SUFFIX_m4b = ".m4b"; // added v1.5.1
         final String JSON_KEYNAME_format = "format";
         final String JSON_KEYNAME_metadata = "metadata";
         final String JSON_KEYNAME_title = "title";
@@ -1130,12 +922,18 @@ public class CatalogAssembler {
         final String JSON_KEYNAME_source = "source";
         final String JSON_VALUE_STRING_original = "original";
         final String ARCHIVE_URL_DOWNLOAD_PREFIX = "http://archive.org/download/";
-
+        /* // aborted enhancement
+        final List<String> REJECTED_IA_KEYWORDS 
+                = Arrays.asList("librivox","audiobook","audiobooks",
+                        "audio book","audio books");
+        */
+        
         String archiveItemIdentifier = "";
         String currentFile = "";
         String bigJpegUrlSuffixString = "";
         String thumbnailJpegUrlSuffixString = "";
         List<String> mp3Urls = new ArrayList<>();
+        List<String> m4bUrls = new ArrayList<>();
         String currentKeyName = "";
         boolean inMetadataObject = false;
         
@@ -1147,7 +945,8 @@ public class CatalogAssembler {
                 case KEY_NAME:
                     currentKeyName = parser.getString();
                     if (currentKeyName.endsWith(JSON_KEYNAME_SUFFIX_jpg) 
-                            || currentKeyName.endsWith(JSON_KEYNAME_SUFFIX_mp3)) {
+                            || currentKeyName.endsWith(JSON_KEYNAME_SUFFIX_mp3)
+                            || currentKeyName.endsWith(JSON_KEYNAME_SUFFIX_m4b)) {
                         currentFile = currentKeyName;
                     }
                     if (currentKeyName.equals(JSON_KEYNAME_metadata)) {
@@ -1170,9 +969,10 @@ public class CatalogAssembler {
                                 audiobook.setDisplayTitle(parser.getString());
                             }
                             break;
+                        // some older IA pages list M4B files in description
                         case JSON_KEYNAME_description:
                             List<String> urlM4bFiles 
-                                    = getM4bUrlsFromArchive(parser.getString());
+                                = getM4bUrlsFromArchiveDescription(parser.getString());
                             if (urlM4bFiles != null && !urlM4bFiles.isEmpty()) {
                                 audiobook.setUrlM4bFiles(urlM4bFiles);
                             }
@@ -1201,13 +1001,31 @@ public class CatalogAssembler {
                         case JSON_KEYNAME_source:
                             if (!currentFile.isEmpty() 
                                     && parser.getString().equals
-                                                (JSON_VALUE_STRING_original)
-                                    && currentFile.endsWith
+                                                (JSON_VALUE_STRING_original)) {
+                                if (currentFile.endsWith
                                                 (JSON_KEYNAME_SUFFIX_mp3)) {
-                                mp3Urls.add(currentFile);
+                                    mp3Urls.add(currentFile);
+                                } else if (currentFile.endsWith
+                                                (JSON_KEYNAME_SUFFIX_m4b)) {
+                                    m4bUrls.add(currentFile);
+                                }  
                                 currentFile = "";
                             }
                             break;
+                        /*
+                        case JSON_KEYNAME_subject:  // aborted enhancement
+                            List<String> keywordStrings
+                                = Arrays.asList(parser.getString().split(";"));
+                            List<Keyword> keywords = new ArrayList<>();
+                            for (String keywordString : keywordStrings) {
+                                keywordString = keywordString.trim().toLowerCase();
+                                if (!REJECTED_IA_KEYWORDS.contains(keywordString)) {
+                                    keywords.add(new Keyword(keywordString));
+                                }
+                            }
+                            audiobook.setKeywords(keywords);
+                            break;
+                        */
                     }
                     break;
             }
@@ -1233,6 +1051,15 @@ public class CatalogAssembler {
             }
         }
         audiobook.setSections(sections);
+        // added v1.5.1 - new convention for m4b metadata in IA
+        if (!m4bUrls.isEmpty()) {
+            List<String> m4bUrlsComplete = new ArrayList<>();
+            for (String m4bUrl : m4bUrls) {
+                m4bUrlsComplete.add(ARCHIVE_URL_DOWNLOAD_PREFIX 
+                                        + archiveItemIdentifier + m4bUrl);
+            }
+            audiobook.setUrlM4bFiles(m4bUrlsComplete);
+        }
         return audiobook;
     }
     
@@ -1240,7 +1067,7 @@ public class CatalogAssembler {
     * Internet Archive webpages for each item. As of 2014-11, LibriVox 
     * volunteer admins are migrating ALL m4b links to these locations, but
     * this is a work in progress. */
-    private static List<String> getM4bUrlsFromArchive (String archiveDescription) {
+    private static List<String> getM4bUrlsFromArchiveDescription (String archiveDescription) {
         List<String> urlM4bFiles = new ArrayList<>();
         Matcher aTagMatcher = A_TAG_PATTERN.matcher(archiveDescription);
         aTagMatch:
@@ -1507,12 +1334,14 @@ public class CatalogAssembler {
      * @param newJpegPath
      * @throws JAXBException
      * @throws IOException
+     * @throws java.lang.InterruptedException
      */
     public static void assembleNewJpegs (String currentBuildPath,
                                             String permanentJpegPath,
                                             String newJpegPath)  
-                throws JAXBException, IOException {
-        File stage06XmlFile = new File(currentBuildPath + STAGE06_FILE_NAME);
+                throws JAXBException, IOException, InterruptedException {
+        File stage06XmlFile 
+                    = Paths.get(currentBuildPath, STAGE06_FILE_NAME).toFile();
         Catalog stage06Catalog
                 = CatalogMarshaller.unmarshalCatalogFromXml(stage06XmlFile);
         downloadJpegs(stage06Catalog, permanentJpegPath, newJpegPath);
@@ -1523,17 +1352,20 @@ public class CatalogAssembler {
     /**
      *
      * @param catalog
-     * @param jpegDownloadDirectory
-     * @param jpegNewDirectory
+     * @param permanentJpegPath
+     * @param newJpegPath
      * @throws IOException
+     * @throws java.lang.InterruptedException
      */
     public static void downloadJpegs 
-            (Catalog catalog, String jpegDownloadDirectory, String jpegNewDirectory) 
-                    throws IOException {
-        if (jpegNewDirectory == null || jpegNewDirectory.isEmpty()) {
-            jpegNewDirectory = jpegDownloadDirectory;
+            (Catalog catalog, String permanentJpegPath, String newJpegPath) 
+                    throws IOException, InterruptedException {
+        if (newJpegPath == null || newJpegPath.isEmpty()) {
+            newJpegPath = permanentJpegPath;
         } else {
-            new File(jpegNewDirectory).mkdirs();
+            if (!Files.exists(Paths.get(newJpegPath))) {
+                new File(newJpegPath).mkdir();
+            }
         }
         System.out.println( "=============================\n"
                           + "DOWNLOAD OF JPEGs COMMENCING.\n"
@@ -1543,13 +1375,14 @@ public class CatalogAssembler {
         int previouslyDownloadedCount = 0;
         int invalidUrlCount = 0;
         for (Audiobook audiobook : catalog.audiobooks) {
+            if (Thread.interrupted()) { throw new InterruptedException(); }
             if (audiobook.getUrlCoverArt() == null 
                         || audiobook.getUrlCoverArt().isEmpty()) {
                 noUrlCount++;
                 continue;
             }
             String coverArtFileName = new File(audiobook.getUrlCoverArt()).getName();
-            if (Files.exists(Paths.get(jpegDownloadDirectory + coverArtFileName))) {
+            if (Files.exists(Paths.get(permanentJpegPath, coverArtFileName))) {
                 //System.out.println
                 //        ("File already downloaded: " + coverArtFileName);
                 previouslyDownloadedCount++;
@@ -1559,7 +1392,7 @@ public class CatalogAssembler {
                 // Files.copy(source, target, replaceOption);
                 Files.copy
                     (new URL(audiobook.getUrlCoverArt()).openStream(), 
-                        Paths.get(jpegNewDirectory + coverArtFileName),
+                        Paths.get(newJpegPath, coverArtFileName),
                         StandardCopyOption.REPLACE_EXISTING);
                 System.out.println("Downloaded jpeg: " + coverArtFileName);
                 downloadCount++;

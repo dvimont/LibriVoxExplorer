@@ -39,12 +39,6 @@ public class Genre
     protected String librivoxId;
     protected String name;
     private String uniqueKey;
-    /*
-    // multi part path index fields for Audiobook indexing
-    private String titleForIndex;
-    private String publicationDateForIndex;
-    private int downloadsForIndex;
-    */
 
     @XmlElement(name = "id")
     @Override
@@ -58,7 +52,13 @@ public class Genre
     }
 
     public String getName () {
-        return name.replaceAll(REGEX_TRIM_LEADING_SPECIAL_CHARS, "");
+        //return name.replaceAll(REGEX_TRIM_LEADING_SPECIAL_CHARS, "");
+        String subgenre = Catalog.SUBGENRE_MAP.get(librivoxId);
+        if (subgenre == null) {
+            return name.replaceAll(REGEX_TRIM_LEADING_SPECIAL_CHARS, "");
+        } else {
+            return subgenre;
+        }
     }
     
     public void setName (String inputString) {
@@ -79,22 +79,18 @@ public class Genre
         return uniqueKey;
     }
     
-    protected void setKeyItem() {
-        uniqueKey = this.getName();
+    private void setKeyItem() {
+        uniqueKey = Catalog.SUBGENRE_MAP.get(librivoxId);
+        if (uniqueKey == null) {
+            uniqueKey = this.getName();
+        } else {
+            // assure "*Nonfiction..." entries appear after fiction entries
+            uniqueKey = uniqueKey.replace('*', '^'); 
+        }
     }
     
     @Override
     public String toString () {
         return this.getName();
     }
-    /*
-    protected void setAudiobookIndexFields(Audiobook audiobook) {
-        if (uniqueKey == null) {
-            setKeyItem();
-        }
-        titleForIndex = audiobook.getTitleKey().getKeyItem();
-        publicationDateForIndex = audiobook.getPublicationDateKey().getKeyItem();
-        downloadsForIndex = audiobook.getDownloadsKey().getKeyItem();
-    }
-    */
 }

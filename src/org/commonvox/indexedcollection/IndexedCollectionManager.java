@@ -32,8 +32,8 @@ import java.util.TreeMap;
  */
 public class IndexedCollectionManager<V> extends IndexedMetaCollection<V> {
     
-    private IndexedMetaCollection<IndexedKey> mappedKeyDirectory;
-    private IndexNode<IndexNode<IndexedKey>> metamapOfMappedKeyMaps;
+    private IndexedMetaCollection<IndexedKey> indexedKeyDirectory;
+    private IndexedCollection<IndexedCollection<IndexedKey>> metamapOfIndexedKeyMaps;
     private final List<Method> ACTIVE_GET_METHODS = new ArrayList<>();
     
     /**
@@ -46,36 +46,36 @@ public class IndexedCollectionManager<V> extends IndexedMetaCollection<V> {
 
     /**
      *
-     * @param title
-     * @param indexNodeArray
+     * @param title title of 
+     * @param indexedCollectionArray
      * @throws InvalidMultiKeyException
      * @throws IndexedCollectionBuildFailureException
      */
     @SafeVarargs
-    public final void buildMappedKeyDirectory 
-        (String title, IndexNode<IndexedKey>... indexNodeArray) 
+    public final void buildIndexedKeyDirectory 
+        (String title, IndexedCollection<IndexedKey>... indexedCollectionArray) 
                 throws InvalidMultiKeyException,
                         IndexedCollectionBuildFailureException {
-        IndexNode.checkVarargs(indexNodeArray);
-        mappedKeyDirectory 
+        IndexedCollection.checkVarargs(indexedCollectionArray);
+        indexedKeyDirectory 
                 = new IndexedKeyManager<IndexedKey>(IndexedKey.class);
-        mappedKeyDirectory.build(title, indexNodeArray);
+        indexedKeyDirectory.build(title, indexedCollectionArray);
         
-        buildDirectoryOfGetMethodsForMappedKeys();
+        buildDirectoryOfGetMethodsForIndexedKeys();
         
-        //mappedKeysDirectory.dumpContents();
+        //indexedKeysDirectory.dumpContents();
     }
 
-    private final void buildDirectoryOfGetMethodsForMappedKeys()
+    private final void buildDirectoryOfGetMethodsForIndexedKeys()
                 throws InvalidMultiKeyException {
         
-        Map<String, Method> methodsToGetMappedKey = new TreeMap<>();
+        Map<String, Method> methodsToGetIndexedKey = new TreeMap<>();
         Map<String, Method> methodsToGetList = new TreeMap<>();
 
         for (Method method : MASTER_CLASS.getMethods()) {
             if (method.getParameterCount() == 0) {
                 if (IndexedKey.class.isAssignableFrom(method.getReturnType())) {
-                    methodsToGetMappedKey
+                    methodsToGetIndexedKey
                             .put(method.getReturnType().getName(), method);
                 } else if (List.class.isAssignableFrom(method.getReturnType())) {
                     ParameterizedType listType 
@@ -87,32 +87,32 @@ public class IndexedCollectionManager<V> extends IndexedMetaCollection<V> {
             }
         }
 
-        metamapOfMappedKeyMaps 
-            = new IndexNode<IndexNode<IndexedKey>>
-                    (0, IndexNode.class, 
-                        "Map to match MASTER_CLASS getMethods with MappedKey maps",
+        metamapOfIndexedKeyMaps 
+            = new IndexedCollection<IndexedCollection<IndexedKey>>
+                    (0, IndexedCollection.class, 
+                        "Map to match MASTER_CLASS getMethods with IndexedKey maps",
                         MethodKey.class, IntegerKey.class);
         int uniqueId = 0;
-        for (IndexNode<IndexedKey> indexNode 
-                                : mappedKeyDirectory.metamap.selectAll()) {
-            if (!indexNode.autofillEnabled()) {
+        for (IndexedCollection<IndexedKey> indexedCollection 
+                                : indexedKeyDirectory.metamap.selectAll()) {
+            if (!indexedCollection.autofillEnabled()) {
                 continue;
             }
-            Method methodToGetMappedKey 
-                = methodsToGetMappedKey.get(indexNode.getValueClass().getName());
-            if (methodToGetMappedKey != null) {
-                ACTIVE_GET_METHODS.add(methodToGetMappedKey);
-                metamapOfMappedKeyMaps
-                        .put(indexNode,
-                                new MethodKey(methodToGetMappedKey),
+            Method methodToGetIndexedKey 
+                = methodsToGetIndexedKey.get(indexedCollection.getValueClass().getName());
+            if (methodToGetIndexedKey != null) {
+                ACTIVE_GET_METHODS.add(methodToGetIndexedKey);
+                metamapOfIndexedKeyMaps
+                        .put(indexedCollection,
+                                new MethodKey(methodToGetIndexedKey),
                                 new IntegerKey(++uniqueId));
             } else {
                 for (Map.Entry<String,Method> entry : methodsToGetList.entrySet()) {
                     if (entry.getKey()
-                            .equals(indexNode.getValueClass().getTypeName())) {
+                            .equals(indexedCollection.getValueClass().getTypeName())) {
                         ACTIVE_GET_METHODS.add(entry.getValue());
-                        metamapOfMappedKeyMaps
-                                .put(indexNode,
+                        metamapOfIndexedKeyMaps
+                                .put(indexedCollection,
                                         new MethodKey(entry.getValue()),
                                         new IntegerKey(++uniqueId));
                         break;
@@ -126,8 +126,8 @@ public class IndexedCollectionManager<V> extends IndexedMetaCollection<V> {
      *
      * @return
      */
-    public boolean allMappedKeyMapsAutofillEnabled () {
-        return mappedKeyDirectory.allMapsAutofillEnabled();
+    public boolean allIndexedKeyMapsAutofillEnabled () {
+        return indexedKeyDirectory.allMapsAutofillEnabled();
     }
 
     /**
@@ -145,24 +145,24 @@ public class IndexedCollectionManager<V> extends IndexedMetaCollection<V> {
         if (value == null || valueKey == null) {
             return;
         }
-        for (IndexNode<V> indexNode : this.metamap.selectAll()) {
-            if (indexNode.autofillEnabled() 
-                    && indexNode.getValueClass().isAssignableFrom
+        for (IndexedCollection<V> indexedCollection : this.metamap.selectAll()) {
+            if (indexedCollection.autofillEnabled() 
+                    && indexedCollection.getValueClass().isAssignableFrom
                                                         (value.getClass())) {
-                indexNode.autoFill(value, valueKey);
+                indexedCollection.autoFill(value, valueKey);
             }
         }
-        autoFillMappedKeyMaps(value);
+        autoFillIndexedKeyMaps(value);
     }
     
-    private void autoFillMappedKeyMaps (V value) 
+    private void autoFillIndexedKeyMaps (V value) 
             throws IllegalAccessException,
                     InvocationTargetException,
                     InvalidMultiKeyException {
         
         for (Method thisGetMethod : ACTIVE_GET_METHODS) {
-            List<IndexNode<IndexedKey>> mapsRelatedToThisGetMethod 
-                    = metamapOfMappedKeyMaps
+            List<IndexedCollection<IndexedKey>> mapsRelatedToThisGetMethod 
+                    = metamapOfIndexedKeyMaps
                             .get(new MethodKey(thisGetMethod));
             if (mapsRelatedToThisGetMethod == null) {
                 continue;
@@ -170,26 +170,26 @@ public class IndexedCollectionManager<V> extends IndexedMetaCollection<V> {
             
             if (List.class.isAssignableFrom(thisGetMethod.getReturnType())) {
                 @SuppressWarnings("unchecked")
-                List<IndexedKey> mappedKeyObjects 
+                List<IndexedKey> indexedKeyObjects 
                         = (List<IndexedKey>)thisGetMethod.invoke(value);
-                if (mappedKeyObjects == null) {
+                if (indexedKeyObjects == null) {
                     continue;
                 }
-                for (IndexNode<IndexedKey> indexNode 
+                for (IndexedCollection<IndexedKey> indexedCollection 
                                         : mapsRelatedToThisGetMethod) {
-                    for (IndexedKey mappedKeyObject : mappedKeyObjects) {
-                        indexNode.autoFill(mappedKeyObject, mappedKeyObject);
+                    for (IndexedKey indexedKeyObject : indexedKeyObjects) {
+                        indexedCollection.autoFill(indexedKeyObject, indexedKeyObject);
                     }
                 }
-            } else { // get a single instance of mappedKeyObject
-                IndexedKey mappedKeyObject 
+            } else { // get a single instance of indexedKeyObject
+                IndexedKey indexedKeyObject 
                         = (IndexedKey)thisGetMethod.invoke(value);
-                if (mappedKeyObject == null) {
+                if (indexedKeyObject == null) {
                     continue;
                 }
-                for (IndexNode<IndexedKey> indexNode 
+                for (IndexedCollection<IndexedKey> indexedCollection 
                                         : mapsRelatedToThisGetMethod) {
-                    indexNode.autoFill(mappedKeyObject, mappedKeyObject);
+                    indexedCollection.autoFill(indexedKeyObject, indexedKeyObject);
                 }
             }
         }
@@ -199,8 +199,8 @@ public class IndexedCollectionManager<V> extends IndexedMetaCollection<V> {
      *
      * @return
      */
-    public IndexedMetaCollection<IndexedKey> getMappedKeyDirectory () {
-        return this.mappedKeyDirectory;
+    public IndexedMetaCollection<IndexedKey> getIndexedKeyDirectory () {
+        return this.indexedKeyDirectory;
     }
     
     private class MethodKey 

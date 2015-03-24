@@ -42,7 +42,7 @@ public class Author
     private String publicationDateForIndex;
     private int downloadsForIndex;
     */
-    protected void setKeyItem () {
+    private void setKeyItem () {
         if (this.firstName == null && this.lastName == null) {
             uniqueKey = "NO_NAME";
             return;
