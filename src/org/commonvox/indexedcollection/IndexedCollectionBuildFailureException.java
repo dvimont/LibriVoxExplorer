@@ -23,14 +23,14 @@ package org.commonvox.indexedcollection;
 public class IndexedCollectionBuildFailureException extends Exception {
 
     /**
-     * Creates a new instance of <code>DirectoryBuildFailureException</code>
+     * Creates a new instance of <code>IndexedCollectionBuildFailureException</code>
      * without detail message.
      */
     public IndexedCollectionBuildFailureException() {
     }
 
     /**
-     * Constructs an instance of <code>DirectoryBuildFailureException</code>
+     * Constructs an instance of <code>IndexedCollectionBuildFailureException</code>
      * with the specified detail message.
      *
      * @param msg the detail message.

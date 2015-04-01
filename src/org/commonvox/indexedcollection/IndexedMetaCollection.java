@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.List;
 
 
-/** Container class for a set of IndexedCollections. All IndexedCollections in such a set
- * provide mapping for the same types of objects: objects which are instances 
- * of the class or subclasses of the class denoted by {@literal <V>}.
+/** Container class for a set of IndexedCollections. All IndexedCollections in 
+ * such a set provide mapping for the same types of objects: objects which are 
+ * instances of the class or subclasses of the class denoted by {@literal <V>}.
  * Class {@literal <V>} is referred to as the MasterClass of the IndexedMetaCollection.
  * @author Daniel Vimont
  * @param <V> The MasterClass of the IndexedMetaCollection. All IndexedCollection objects managed
@@ -45,7 +45,7 @@ public abstract class IndexedMetaCollection<V> {
 
     /**
      * This method takes the array of IndexedCollection objects that is passed 
-     * to it and constructs a metamap (a IndexedCollection of CollectionIndexes)
+     * to it and constructs a metamap (an IndexedCollection of IndexedCollections)
      * that forms the centerpiece of the IndexedMetaCollection.
      * @param title Title of the directory.
      * @param indexedCollectionArray Array of IndexedCollection objects, all 
@@ -155,7 +155,8 @@ public abstract class IndexedMetaCollection<V> {
      * @throws InvalidIndexedCollectionQueryException
      */
     @SafeVarargs
-    public final IndexedCollection<V> getIndexedCollection (Class<? extends V> valueClass, 
+    public final IndexedCollection<V> getIndexedCollection 
+                (Class<? extends V> valueClass, 
                                     Class<? extends Key>... keyClassArray) 
             throws InvalidIndexedCollectionQueryException {
         IndexedCollection.checkVarargs(keyClassArray);

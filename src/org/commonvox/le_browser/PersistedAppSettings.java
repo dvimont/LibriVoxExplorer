@@ -63,9 +63,6 @@ public class PersistedAppSettings {
            return abbr; 
         }
     };
-    //private static final String BOOKMARK_SETTING_KEY = "bookmarkSuppressOption";
-    //private static final String BOOKMARKS_SUPPRESS = "Y";
-    //private static final String BOOKMARKS_ALLOW = "N"; // default
 
     protected static CoverArtDisplaySetting getCoverArtDisplaySetting () {
         String currentSetting = APPLICATION_SETTINGS.get

@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
@@ -57,7 +56,7 @@ import org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException;
 import org.commonvox.indexedcollection.Key;
 import org.commonvox.indexedcollection.IndexedKey;
 import org.commonvox.indexedcollection.IndexedCollection;
-import org.commonvox.indexedcollection.IndexedCollectionManager;
+import org.commonvox.indexedcollection.IndexedCollectionDirectory;
 /**
  *
  * @author Daniel Vimont
@@ -137,8 +136,8 @@ public class Catalog
 
     @XmlTransient
     protected Timer timer = new Timer();
-    private final static IndexedCollectionManager<Work> DIRECTORY 
-                        = new IndexedCollectionManager<Work>(Work.class);
+    private final static IndexedCollectionDirectory<Work> DIRECTORY 
+                        = new IndexedCollectionDirectory<Work>(Work.class);
  
     protected void addAudiobook (String lvCatalogUrlString, List<String> m4bUrlStrings) {
         audiobooks.add(new Audiobook(lvCatalogUrlString, m4bUrlStrings));
@@ -221,17 +220,16 @@ public class Catalog
     /**
      *
      * @param callback
-     * @throws InvalidIndexedCollectionQueryException
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      * @throws InvalidMultiKeyException
      * @throws IndexedCollectionBuildFailureException
      * @throws InterruptedException
      * @throws JAXBException
+     * @throws java.io.IOException
      */
     public void bootUp(CatalogCallback callback) 
-            throws InvalidIndexedCollectionQueryException, 
-                    IllegalAccessException,
+            throws IllegalAccessException,
                     InvocationTargetException,
                     InvalidMultiKeyException,
                     IndexedCollectionBuildFailureException,
@@ -510,118 +508,6 @@ public class Catalog
 //            System.out.println(entry.getKey() + " : " + entry.getValue());
 //        }
     }
-    
-    /**
-     * Intention of the following, commented out method was as follows:
-     * Normalizes all Author, Reader, and Genre data. (Such that, upon 
-     * completion of this method, only one IndexedKey object [e.g., author
-     * object] will be held in memory for each unique entity [e.g., unique 
-     * author] in the catalog, and all references to the unique entity will
-     * refer to the same single IndexedKey object.
-     * @param callback
-     * @throws InterruptedException
-     */
-    /*
-    public final void normalizeIndexedKeys(CatalogCallback callback) 
-            throws InvalidIndexedCollectionQueryException, InterruptedException     {
-        long audiobookCount = 0;
-        if (callback != null) {
-            callback.updateTaskProgress(0, m4bAudiobooks.size());
-        }
-        
-        for (Audiobook audiobook : m4bAudiobooks) {
-            if (Thread.interrupted()) { throw new InterruptedException(); }
-            audiobookCount++;
-            if (callback != null && audiobookCount % CALLBACK_DIVISOR == 0) {
-                callback.updateTaskProgress(audiobookCount, m4bAudiobooks.size());
-            }
-            if (audiobook.getAuthors() != null) {
-                for (Author author : audiobook.getAuthors()) {
-                    if (uniqueAuthorList.contains(author)) {
-                        author = uniqueAuthorList.ceiling(author);
-                    } else {
-                        System.out.println("**Serious internal inconsistency: " 
-                                + "Author with ID = " + author.getId() 
-                                + " not found in unique list.");
-                    }
-                }
-            }
-            if (audiobook.getReaders() != null) {
-                for (Reader reader : audiobook.getReaders()) {
-                    if (uniqueReaderList.contains(reader)) {
-                        reader = uniqueReaderList.ceiling(reader);
-                    } else {
-                        System.out.println("**Serious internal inconsistency: " 
-                                + "Reader with ID = " + reader.getId() 
-                                + " not found in unique list.");
-                    }
-                }
-            }
-            if (audiobook.getGenres() != null) {
-                for (Genre genre : audiobook.getGenres()) {
-                    if (uniqueGenreList.contains(genre)) {
-                        genre = uniqueGenreList.ceiling(genre);
-                    } else {
-                        System.out.println("**Serious internal inconsistency: " 
-                                + "Genre with ID = " + genre.getId() 
-                                + " not found in unique list.");
-                    }
-                }
-            }
-            if (audiobook.getLanguage() != null 
-                    && !audiobook.getLanguage().getLanguage().isEmpty()) {
-                if (uniqueLanguageList.contains(audiobook.getLanguage())) {
-                    audiobook.setLanguage
-                        (uniqueLanguageList.ceiling(audiobook.getLanguage()));
-                } else {
-                    System.out.println("**Serious internal inconsistency: " 
-                            + "Language = " + audiobook.getLanguage().getLanguage()
-                            + " not found in unique list.");
-                }
-            }
-            if (audiobook.getSections() != null) {
-                for (Section section : audiobook.getSections()) {
-                    if (section.getAuthors() != null) {
-                        for (Author author : section.getAuthors()) {
-                            if (uniqueAuthorList.contains(author)) {
-                                author = uniqueAuthorList.ceiling(author);
-                            } else {
-                                System.out.println("**Serious internal inconsistency: " 
-                                        + "Author with ID = " + author.getId() 
-                                        + " not found in unique list.");
-                            }
-                        }
-                    }
-                    if (section.getReaders() != null) {
-                        for (Reader reader : section.getReaders()) {
-                            if (uniqueReaderList.contains(reader)) {
-                                reader = uniqueReaderList.ceiling(reader);
-                            } else {
-                                System.out.println("**Serious internal inconsistency: " 
-                                        + "Reader with ID = " + reader.getId() 
-                                        + " not found in unique list.");
-                            }
-                        }
-                    }
-                    if (section.getLanguage() != null 
-                            && !section.getLanguage().getLanguage().isEmpty()) {
-                        if (uniqueLanguageList.contains(section.getLanguage())) {
-                            section.setLanguage
-                                (uniqueLanguageList.ceiling(section.getLanguage()));
-                        } else {
-                            System.out.println("**Serious internal inconsistency: " 
-                                    + "Language = " + section.getLanguage().getLanguage()
-                                    + " not found in unique list.");
-                        }
-                    }
-                }
-            }
-        }
-        if (callback != null) {
-            callback.updateTaskProgress(m4bAudiobooks.size(), m4bAudiobooks.size());
-        }
-    }
-    */
     
     private void setAudiobookAuthorReaderGenre(CatalogCallback callback) 
             throws InterruptedException {
@@ -993,12 +879,13 @@ public class Catalog
     */
 
     /** Get list of instances of a specified IndexedKey-implementing class
- (e.g., a list of Authors, a list of Readers, etc.). 
+     * (e.g., a list of Authors, a list of Readers, etc.). 
      * @param indexedKeyClass designates the Class of objects to be 
      * returned. (Must be a non-abstract subclass of 
      * {@link  org.commonvox.indexedcollection.IndexedKey IndexedKey}.)  
      * @return list of instances of the specified IndexedKey-implementing class
- (e.g., a list of Authors, a list of Readers, etc.).
+     * (e.g., a list of Authors, a list of Readers, etc.).
+     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException
      */
     public List<IndexedKey> getIndexedKeyValueList
             (Class<? extends IndexedKey> indexedKeyClass)
@@ -1013,7 +900,8 @@ public class Catalog
     
 
     /** Get instance of a IndexedKey-implementing class as designated by
-     * indexedKeyClass and the object's Librivox ID (submitted in String format). */
+     * indexedKeyClass and the object's Librivox ID (submitted in String format). 
+     */
     private <M extends IndexedKey & HasLibrivoxId>
             IndexedKey getIndexedKeyObject (Class<M> indexedKeyClass, 
                                                             String idString) 
@@ -1262,7 +1150,8 @@ public class Catalog
      * (e.g., Audiobook.class).
      * @param indexedKeyClass IndexedKey-implementing class, designating the 
      * order in which Works are to be printed (e.g., Author.class, Title.class,
-     * etc.). */
+     * etc.).
+     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException */
     public void printWorks 
             (Class<? extends Work> workClass, 
                 Class<? extends IndexedKey> indexedKeyClass) 
@@ -1382,7 +1271,8 @@ public class Catalog
     /** Print all instances of IndexedKey-implementing class specified by
      * indexedKeyClass parameter. 
      * @param indexedKeyClass IndexedKey-implementing class, designating the 
-     * type of objects to be printed (e.g. Author.class, Reader.class, etc.) */
+     * type of objects to be printed (e.g. Author.class, Reader.class, etc.)
+     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException */
     public void printIndexedKeyInstances
                         (Class<? extends IndexedKey> indexedKeyClass) 
                             throws InvalidIndexedCollectionQueryException {
@@ -1495,6 +1385,12 @@ public class Catalog
         System.out.println("** REPORT GENERATION IS COMPLETE **");
     }
     
+    /**
+     *
+     * @param workClass
+     * @param keyClassArray
+     * @throws InvalidIndexedCollectionQueryException
+     */
     @SafeVarargs
     protected final void dumpIndexedCollection (Class<? extends Work> workClass, 
                                         Class<? extends Key>... keyClassArray) 

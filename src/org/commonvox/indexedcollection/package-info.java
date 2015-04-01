@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * This package provides components for simple, completely automatic multi-key
- * indexing of a collection of objects of any given class.
+ * This package provides components for simple, completely automatic composite
+ * (i.e., multi-key) indexing of a collection of objects of any given class.
  */
 package org.commonvox.indexedcollection;

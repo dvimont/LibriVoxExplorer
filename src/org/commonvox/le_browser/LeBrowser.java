@@ -130,8 +130,6 @@ import org.commonvox.le_catalog.Translator;
 import org.commonvox.le_catalog.MyBookmarks;
 import org.commonvox.le_catalog.MyList;
 import org.commonvox.le_catalog.Work;
-import org.commonvox.indexedcollection.IndexedCollectionBuildFailureException;
-import org.commonvox.indexedcollection.InvalidMultiKeyException;
 import org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException;
 import org.commonvox.indexedcollection.Key;
 import org.commonvox.indexedcollection.IndexedKey;
@@ -433,10 +431,6 @@ public class LeBrowser extends Application {
                 = new Task<Catalog>() {
             @Override 
             protected Catalog call() 
-                throws InterruptedException, JAXBException,
-                    InvalidIndexedCollectionQueryException, IllegalAccessException,
-                    InvocationTargetException, InvalidMultiKeyException,
-                    IndexedCollectionBuildFailureException, MalformedURLException 
             {
                 try {
                     CatalogCallback callback
@@ -495,8 +489,8 @@ public class LeBrowser extends Application {
                     if (this.isCancelled()) {
                         buildCatalogShutdownCompleted = true;
                         return null;
-                    } else {
-                        throw e;
+//                    } else {
+//                        throw e;
                     }
                 } catch (Exception e) {
                     this.updateTitle("buildCatalog");
@@ -975,15 +969,15 @@ public class LeBrowser extends Application {
         });
         
         Tab genreTab = new Tab();
-        genreTab.setContent(getAudiobookScrollPane(Genre.class));
+        genreTab.setContent(getAudiobookAccordionsScrollPane(Genre.class));
         Tab authorTab = new Tab();
-        authorTab.setContent(getAlphabeticScrollPane(Author.class));
+        authorTab.setContent(getAlphabeticAccordionsScrollPane(Author.class));
         Tab readerTab = new Tab();
-        readerTab.setContent(getAlphabeticScrollPane(Reader.class));
+        readerTab.setContent(getAlphabeticAccordionsScrollPane(Reader.class));
         Tab languageTab = new Tab();
-        languageTab.setContent(getAudiobookScrollPane(Language.class));
+        languageTab.setContent(getAudiobookAccordionsScrollPane(Language.class));
         Tab myListTab = new Tab();
-        myListTab.setContent(getMyListScrollPane());
+        myListTab.setContent(getMyListAccordionsScrollPane());
         myListTab.setId("myListTab");
         centerTabPane.getTabs().addAll
                 (genreTab, authorTab, readerTab, languageTab, myListTab);
@@ -1692,7 +1686,7 @@ public class LeBrowser extends Application {
         return productLabelStackPane;
     }
     
-    private ScrollPane getAlphabeticScrollPane
+    private ScrollPane getAlphabeticAccordionsScrollPane
             (Class<? extends IndexedKey> indexedKeyClass) {
                 
         VBox alphabetVBox = new VBox();
@@ -1796,7 +1790,7 @@ public class LeBrowser extends Application {
         return letterAccordion;
     }
             
-    private ScrollPane getAudiobookScrollPane
+    private ScrollPane getAudiobookAccordionsScrollPane
             (Class<? extends IndexedKey> indexedKeyClass) {
         VBox audiobookVBox = new VBox();
         try {        
@@ -1819,7 +1813,7 @@ public class LeBrowser extends Application {
         return audiobookBrowser;
     }
             
-    private ScrollPane getMyListScrollPane() {
+    private ScrollPane getMyListAccordionsScrollPane() {
         VBox myListVBox = new VBox();
         Accordion myAuthorsAccordion = new Accordion();
         Label noAuthorsLabel 
@@ -2033,48 +2027,43 @@ public class LeBrowser extends Application {
         String audiobookValueRangeString = "";
         if (rowParms.upperIndex > 0) {
             audiobookCount.set(rowParms.upperIndex - rowParms.lowerIndex);
-                switch (selectedOrderClass.getSimpleName()) {
-                    case "Title":
-                        try {
-                            List<Work> audiobooks = catalog.getWorks
-                                (Audiobook.class, rowParms.indexedKeyObject, 
-                                        rowParms.readerWorksOption, selectedOrderClass)
-                                    .subList(rowParms.lowerIndex, rowParms.upperIndex);
-                            Work lowAudiobook = audiobooks.get(0);
-                            Work highAudiobook = audiobooks.get(audiobooks.size()-1);
-                            String audiobookLowValueString = "";
-                            String audiobookHighValueString = "";
-                            final int TITLE_SUBSTRING_LENGTH = 40;
-                            String title = lowAudiobook.getTitleKey().getKeyItem();
-                            if (title.length() <= TITLE_SUBSTRING_LENGTH) {
-                                audiobookLowValueString = title;
-                            } else {
-                                audiobookLowValueString = title.substring
-                                        (0,title.substring(0,TITLE_SUBSTRING_LENGTH)
-                                                    .lastIndexOf(' ')) + "...";
-                            }
-                            title = highAudiobook.getTitleKey().getKeyItem();
-                            if (title.length() <= TITLE_SUBSTRING_LENGTH) {
-                                audiobookHighValueString = title;
-                            } else {
-                                audiobookHighValueString = title.substring
-                                        (0,title.substring(0,TITLE_SUBSTRING_LENGTH)
-                                                    .lastIndexOf(' ')) + "...";
-                            }
-                            audiobookValueRangeString 
-                                = "          ---->>  from <" 
-                                    + audiobookLowValueString.toUpperCase() + ">"
-                                    + " -- through <" 
-                                    + audiobookHighValueString.toUpperCase() + ">";
-                        } catch (InvalidIndexedCollectionQueryException e) {}
-                        break;
-                    case "PublicationDate":
-                    case "DownloadsPerDay":
-                    case "Downloads":
-                        audiobookCountString = " [" + (rowParms.lowerIndex + 1) 
-                                                    + "-" + rowParms.upperIndex + "]";
-                        break;
-                }
+            if (selectedOrderClass.equals(Title.class)) {
+                try {
+                    List<Work> audiobooks = catalog.getWorks
+                        (Audiobook.class, rowParms.indexedKeyObject, 
+                                rowParms.readerWorksOption, selectedOrderClass)
+                            .subList(rowParms.lowerIndex, rowParms.upperIndex);
+                    Work lowAudiobook = audiobooks.get(0);
+                    Work highAudiobook = audiobooks.get(audiobooks.size()-1);
+                    String audiobookLowValueString = "";
+                    String audiobookHighValueString = "";
+                    final int TITLE_SUBSTRING_LENGTH = 40;
+                    String title = lowAudiobook.getTitleKey().getKeyItem();
+                    if (title.length() <= TITLE_SUBSTRING_LENGTH) {
+                        audiobookLowValueString = title;
+                    } else {
+                        audiobookLowValueString = title.substring
+                                (0,title.substring(0,TITLE_SUBSTRING_LENGTH)
+                                            .lastIndexOf(' ')) + "...";
+                    }
+                    title = highAudiobook.getTitleKey().getKeyItem();
+                    if (title.length() <= TITLE_SUBSTRING_LENGTH) {
+                        audiobookHighValueString = title;
+                    } else {
+                        audiobookHighValueString = title.substring
+                                (0,title.substring(0,TITLE_SUBSTRING_LENGTH)
+                                            .lastIndexOf(' ')) + "...";
+                    }
+                    audiobookValueRangeString 
+                        = "          ---->>  from <" 
+                            + audiobookLowValueString.toUpperCase() + ">"
+                            + " -- through <" 
+                            + audiobookHighValueString.toUpperCase() + ">";
+                } catch (InvalidIndexedCollectionQueryException e) {}
+            } else {
+                    audiobookCountString = " [" + (rowParms.lowerIndex + 1) 
+                                                + "-" + rowParms.upperIndex + "]";
+            }
         } else { 
             try { audiobookCount.set(catalog.getWorks
                     (Audiobook.class, rowParms.indexedKeyObject, 

@@ -23,7 +23,7 @@
  * <a href="http://commonvox.org/le-tutorial">LibriVox EXPLORER</a> 
  * desktop application, a 3-tier application consisting of UI 
  * (org.commonvox.le_browser), processing/data-access layer 
- * (org.commonvox.le_catalog), and data-store layer 
+ * (org.commonvox.le_catalog), and in-memory data-store/indexing layer 
  * (org.commonvox.indexedcollection).
  */
 @XmlAccessorType(XmlAccessType.PROPERTY)
