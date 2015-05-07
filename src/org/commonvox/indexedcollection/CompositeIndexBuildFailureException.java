@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Daniel Vimont
+ * Copyright (C) 2015 Daniel Vimont
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@ package org.commonvox.indexedcollection;
  *
  * @author DanUltra
  */
-public class IndexedCollectionBuildFailureException extends Exception {
+public class CompositeIndexBuildFailureException extends Exception {
 
     /**
      * Creates a new instance of <code>IndexedCollectionBuildFailureException</code>
      * without detail message.
      */
-    public IndexedCollectionBuildFailureException() {
+    public CompositeIndexBuildFailureException() {
     }
 
     /**
@@ -35,7 +35,7 @@ public class IndexedCollectionBuildFailureException extends Exception {
      *
      * @param msg the detail message.
      */
-    public IndexedCollectionBuildFailureException(String msg) {
+    public CompositeIndexBuildFailureException(String msg) {
         super(msg);
     }
 }

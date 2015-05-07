@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Daniel Vimont
+ * Copyright (C) 2015 Daniel Vimont
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,13 +50,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-import org.commonvox.indexedcollection.IndexedCollectionBuildFailureException;
-import org.commonvox.indexedcollection.InvalidMultiKeyException;
-import org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException;
+import org.commonvox.indexedcollection.CompositeIndexBuildFailureException;
+import org.commonvox.indexedcollection.InvalidKeyException;
+import org.commonvox.indexedcollection.InvalidQueryException;
 import org.commonvox.indexedcollection.Key;
 import org.commonvox.indexedcollection.IndexedKey;
+import org.commonvox.indexedcollection.CompositeIndex;
 import org.commonvox.indexedcollection.IndexedCollection;
-import org.commonvox.indexedcollection.IndexedCollectionDirectory;
 /**
  *
  * @author Daniel Vimont
@@ -136,8 +136,8 @@ public class Catalog
 
     @XmlTransient
     protected Timer timer = new Timer();
-    private final static IndexedCollectionDirectory<Work> DIRECTORY 
-                        = new IndexedCollectionDirectory<Work>(Work.class);
+    private final static IndexedCollection<Work> DIRECTORY 
+                        = new IndexedCollection<Work>(Work.class);
  
     protected void addAudiobook (String lvCatalogUrlString, List<String> m4bUrlStrings) {
         audiobooks.add(new Audiobook(lvCatalogUrlString, m4bUrlStrings));
@@ -222,8 +222,8 @@ public class Catalog
      * @param callback
      * @throws IllegalAccessException
      * @throws InvocationTargetException
-     * @throws InvalidMultiKeyException
-     * @throws IndexedCollectionBuildFailureException
+     * @throws InvalidKeyException
+     * @throws CompositeIndexBuildFailureException
      * @throws InterruptedException
      * @throws JAXBException
      * @throws java.io.IOException
@@ -231,8 +231,8 @@ public class Catalog
     public void bootUp(CatalogCallback callback) 
             throws IllegalAccessException,
                     InvocationTargetException,
-                    InvalidMultiKeyException,
-                    IndexedCollectionBuildFailureException,
+                    InvalidKeyException,
+                    CompositeIndexBuildFailureException,
                     InterruptedException,
                     JAXBException,
                     IOException {
@@ -270,7 +270,7 @@ public class Catalog
             ("Mapping (indexing) of Works (audiobooks & sections) and " 
                     + "IndexedKeys (authors, readers, etc.) initiated.");
         callback.updateTaskMessage("Populating catalog indexes.");
-        this.autofillDirectory(callback);
+        autofillDirectory(callback);
         printMemoryUsage("After directory populated", DIAGNOSTIC_MODE);
         callback.updateTaskMessage("Configuring Google search facility.");
         this.fetchGoogleApiKey();
@@ -540,66 +540,66 @@ public class Catalog
     }
     
     private void buildDirectory ()             
-            throws InvalidMultiKeyException,
-                    IndexedCollectionBuildFailureException {
+            throws InvalidKeyException,
+                    CompositeIndexBuildFailureException {
         
         DIRECTORY.build("Indexes of Work Collection", 
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Title", 
                     Title.class, PublicationDate.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Publication Date", 
                     PublicationDate.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Downloads", 
                         Downloads.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Author, Title", 
                                 Author.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Author, Publication Date", 
                         Author.class, PublicationDate.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Author, Downloads", 
                         Author.class, Downloads.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Genre, Title", 
                         Genre.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Genre, Publication Date", 
                         Genre.class, PublicationDate.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Genre, Downloads", 
                         Genre.class, Downloads.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Reader, Title", 
                                 Reader.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Reader, Publication Date", 
                         Reader.class, PublicationDate.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Reader, Downloads", 
                         Reader.class, Downloads.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Language, Title", 
                         Language.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Language, Publication Date", 
                     Language.class, PublicationDate.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Language, Downloads", 
                     Language.class, Downloads.class, Title.class, Work.class)
                 
             // Possible future upgrade follows - allow secondary sort by Author
             //   Note that this significantly increases RAM requirement (100MB)
             /*
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Genre, Author", 
                         Genre.class, Author.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Reader, Author", 
                         Reader.class, Author.class, Title.class, Work.class),
-            new IndexedCollection<Work>
+            new CompositeIndex<Work>
                 (Audiobook.class, "Audiobooks by Language, Author", 
                     Language.class, Author.class, Title.class, Work.class)
             */
@@ -607,26 +607,26 @@ public class Catalog
 
         DIRECTORY.buildIndexedKeyDirectory
             ("Indexes of Work attribute Collections", 
-                new IndexedCollection<IndexedKey>
+                new CompositeIndex<IndexedKey>
                             ("Authors", Author.class, Author.class),
-                new IndexedCollection<IndexedKey>
+                new CompositeIndex<IndexedKey>
                             ("Genres", Genre.class, Genre.class),
-                new IndexedCollection<IndexedKey>
+                new CompositeIndex<IndexedKey>
                             ("Readers", Reader.class, Reader.class),
-                new IndexedCollection<IndexedKey>
+                new CompositeIndex<IndexedKey>
                             ("Languages", Language.class, Language.class)
             );
                 /*
-                new IndexedCollection<IndexedKey>
+                new CompositeIndex<IndexedKey>
                     ("Authors by Librivox ID", Author.class, LibrivoxId.class),
-                new IndexedCollection<IndexedKey>
+                new CompositeIndex<IndexedKey>
                     ("Genres by Librivox ID", Genre.class, LibrivoxId.class),
-                new IndexedCollection<IndexedKey>
+                new CompositeIndex<IndexedKey>
                     ("Readers by Librivox ID", Reader.class, LibrivoxId.class));
                 */
     }
 
-    /** Populates IndexedCollection indexes: (1) one set for MasterClass objects (which 
+    /** Populates CompositeIndex indexes: (1) one set for MasterClass objects (which 
  in this application are Work (audiobook and section) class objects; and
  (2) one set for IndexedKey-implementing objects (which in this application
  are objects such as author, reader, etc.).
@@ -635,7 +635,7 @@ public class Catalog
     public void autofillDirectory (CatalogCallback callback) 
             throws IllegalAccessException,
                     InvocationTargetException,
-                    InvalidMultiKeyException,
+                    InvalidKeyException,
                     InterruptedException     {
         long audiobookCount = 0;
         if (callback != null) {
@@ -648,11 +648,12 @@ public class Catalog
                 callback.updateTaskProgress(audiobookCount, m4bAudiobooks.size());
             }
             DIRECTORY.autoFill(audiobook, audiobook);
-            if (audiobook.getSections() != null) {
-                for (Section section : audiobook.getSections()) {
-                    DIRECTORY.autoFill(section, section);
-                }
-            }
+            // following extraneous code commented out 2015-04-03
+//            if (audiobook.getSections() != null) {
+//                for (Section section : audiobook.getSections()) {
+//                    DIRECTORY.autoFill(section, section);
+//                }
+//            }
         }
         if (callback != null) {
             callback.updateTaskProgress(m4bAudiobooks.size(), m4bAudiobooks.size());
@@ -666,14 +667,14 @@ public class Catalog
      * @param workClass
      * @param keyClassArray
      * @return 
-     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException */
+     * @throws org.commonvox.indexedcollection.InvalidQueryException */
     @SafeVarargs
     public final List<Work> getWorks 
             (Class<? extends Work> workClass, 
                             Class<? extends Key>... keyClassArray)
-            throws InvalidIndexedCollectionQueryException {
+            throws InvalidQueryException {
                 
-        IndexedCollection.checkVarargs(keyClassArray);
+        CompositeIndex.checkVarargs(keyClassArray);
         timer.start();
         List<Work> returnList
                 = DIRECTORY.getValueList(workClass, keyClassArray);
@@ -690,12 +691,12 @@ public class Catalog
      * @param readerWorksOption
      * @return List of Work objects that are associated with the submitted 
      * object (e.g., works written by Author, read by Reader, etc.).
-     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException
+     * @throws org.commonvox.indexedcollection.InvalidQueryException
      */
     public List<Work> getWorks 
                     (Class<? extends Work> workClass, IndexedKey indexedKey,
                             ReaderWorksOption readerWorksOption) 
-                throws InvalidIndexedCollectionQueryException {
+                throws InvalidQueryException {
         timer.start();
         List<Work> fullList = DIRECTORY.getValueList(workClass, indexedKey);
         /*
@@ -736,7 +737,7 @@ public class Catalog
      * order in which list is to be returned.
      * @return List of Work objects that are associated with the submitted 
      * object (e.g., works written by Author, read by Reader, etc.).
-     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException
+     * @throws org.commonvox.indexedcollection.InvalidQueryException
      */
     @SafeVarargs
     public final List<Work> getWorks 
@@ -744,8 +745,8 @@ public class Catalog
                             IndexedKey indexedKey,
                             ReaderWorksOption readerWorksOption,
                             Class<? extends Key>... keyClassArray) 
-                throws InvalidIndexedCollectionQueryException {
-        IndexedCollection.checkVarargs(keyClassArray);
+                throws InvalidQueryException {
+        CompositeIndex.checkVarargs(keyClassArray);
         //timer.start();
         if (PersistedUserSelectedCollection.class.isAssignableFrom(indexedKey.getClass())) {
             return getWorksFromPersistedUserPreferences
@@ -790,7 +791,7 @@ public class Catalog
                     (Class<? extends Work> workClass, 
                             PersistedUserSelectedCollection persistedUserPreferences,
                             Class<? extends Key>... keyClassArray) 
-                throws InvalidIndexedCollectionQueryException {
+                throws InvalidQueryException {
         List<Work> fullList = getWorks(workClass, keyClassArray);
         List<Work> returnList = new ArrayList<>();
         for (Work work : fullList) {
@@ -885,14 +886,14 @@ public class Catalog
      * {@link  org.commonvox.indexedcollection.IndexedKey IndexedKey}.)  
      * @return list of instances of the specified IndexedKey-implementing class
      * (e.g., a list of Authors, a list of Readers, etc.).
-     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException
+     * @throws org.commonvox.indexedcollection.InvalidQueryException
      */
     public List<IndexedKey> getIndexedKeyValueList
             (Class<? extends IndexedKey> indexedKeyClass)
-            throws InvalidIndexedCollectionQueryException {
+            throws InvalidQueryException {
         //timer.start();
         List<IndexedKey> returnList 
-                = DIRECTORY.getIndexedKeyDirectory().getIndexedCollection
+                = DIRECTORY.getIndexedKeyDirectory().getCompositeIndex
                                 (indexedKeyClass, indexedKeyClass).selectAll();
         //timer.stop();
         return returnList;
@@ -905,10 +906,10 @@ public class Catalog
     private <M extends IndexedKey & HasLibrivoxId>
             IndexedKey getIndexedKeyObject (Class<M> indexedKeyClass, 
                                                             String idString) 
-            throws InvalidIndexedCollectionQueryException {
+            throws InvalidQueryException {
         timer.start();
         IndexedKey indexedKeyInstance 
-                = DIRECTORY.getIndexedKeyDirectory().getIndexedCollection
+                = DIRECTORY.getIndexedKeyDirectory().getCompositeIndex
                         (indexedKeyClass, LibrivoxId.class)
                                     .getFirst(new LibrivoxId(idString));
         timer.stop();
@@ -1151,14 +1152,14 @@ public class Catalog
      * @param indexedKeyClass IndexedKey-implementing class, designating the 
      * order in which Works are to be printed (e.g., Author.class, Title.class,
      * etc.).
-     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException */
+     * @throws org.commonvox.indexedcollection.InvalidQueryException */
     public void printWorks 
             (Class<? extends Work> workClass, 
                 Class<? extends IndexedKey> indexedKeyClass) 
-            throws InvalidIndexedCollectionQueryException {
+            throws InvalidQueryException {
         timer.reset();
-        IndexedCollection<IndexedKey> indexedKeyMap 
-                = DIRECTORY.getIndexedKeyDirectory().getIndexedCollection
+        CompositeIndex<IndexedKey> indexedKeyMap 
+                = DIRECTORY.getIndexedKeyDirectory().getCompositeIndex
                                 (indexedKeyClass, indexedKeyClass);
         
         if (indexedKeyMap == null) {
@@ -1167,7 +1168,7 @@ public class Catalog
             return;
         }
         String workMapTitle 
-            = DIRECTORY.getIndexedCollection(workClass, indexedKeyClass).getTitle();
+            = DIRECTORY.getCompositeIndex(workClass, indexedKeyClass).getTitle();
         printHeadingWithTimestamp(workMapTitle);
         for (IndexedKey indexedKeyInstance : indexedKeyMap.selectAll()) {
             printWorks(workClass, indexedKeyInstance);
@@ -1187,7 +1188,7 @@ public class Catalog
     public void printWorks 
                     (Class<? extends Work> workClass, 
                             IndexedKey indexedKeyInstance) 
-            throws InvalidIndexedCollectionQueryException {
+            throws InvalidQueryException {
         StringBuilder heading = new StringBuilder();
         heading.append(workClass.getSimpleName() + "s of " 
                 + indexedKeyInstance.getClass().getSimpleName() + ": "
@@ -1231,7 +1232,7 @@ public class Catalog
     public <W extends Work, M extends IndexedKey & HasLibrivoxId>
             void printWorks 
                 (Class<W> workClass, Class<M> indexedKeyClass, String idString)
-            throws InvalidIndexedCollectionQueryException {
+            throws InvalidQueryException {
 
         IndexedKey indexedKeyInstance 
                 = getIndexedKeyObject(indexedKeyClass, idString);
@@ -1250,16 +1251,16 @@ public class Catalog
      *  @param workClass designates (sub)class of Work objects to be printed
      * (e.g., Audiobook.class).
      * @param keyClassArray
-     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException */
+     * @throws org.commonvox.indexedcollection.InvalidQueryException */
     @SafeVarargs
     public final void printWorksWithoutSubheadings 
             (Class<? extends Work> workClass, 
                     Class<? extends Key>... keyClassArray) 
-            throws InvalidIndexedCollectionQueryException {
-        IndexedCollection.checkVarargs(keyClassArray);
+            throws InvalidQueryException {
+        CompositeIndex.checkVarargs(keyClassArray);
         timer.reset();
         String indexedCollectionTitle 
-                = DIRECTORY.getIndexedCollection(workClass, keyClassArray).getTitle();
+                = DIRECTORY.getCompositeIndex(workClass, keyClassArray).getTitle();
         printHeadingWithTimestamp(indexedCollectionTitle);
         for (Work work : getWorks(workClass, keyClassArray)) {
             System.out.println(work.toStringVerbose());
@@ -1272,13 +1273,13 @@ public class Catalog
      * indexedKeyClass parameter. 
      * @param indexedKeyClass IndexedKey-implementing class, designating the 
      * type of objects to be printed (e.g. Author.class, Reader.class, etc.)
-     * @throws org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException */
+     * @throws org.commonvox.indexedcollection.InvalidQueryException */
     public void printIndexedKeyInstances
                         (Class<? extends IndexedKey> indexedKeyClass) 
-                            throws InvalidIndexedCollectionQueryException {
+                            throws InvalidQueryException {
         timer.reset();
-        IndexedCollection<IndexedKey> index 
-            = DIRECTORY.getIndexedKeyDirectory().getIndexedCollection
+        CompositeIndex<IndexedKey> index 
+            = DIRECTORY.getIndexedKeyDirectory().getCompositeIndex
                     (indexedKeyClass, indexedKeyClass);
 
         printHeadingWithTimestamp
@@ -1389,14 +1390,14 @@ public class Catalog
      *
      * @param workClass
      * @param keyClassArray
-     * @throws InvalidIndexedCollectionQueryException
+     * @throws InvalidQueryException
      */
     @SafeVarargs
     protected final void dumpIndexedCollection (Class<? extends Work> workClass, 
                                         Class<? extends Key>... keyClassArray) 
-            throws InvalidIndexedCollectionQueryException {
-        IndexedCollection.checkVarargs(keyClassArray);
-        DIRECTORY.getIndexedCollection(workClass, keyClassArray).dumpContents();
+            throws InvalidQueryException {
+        CompositeIndex.checkVarargs(keyClassArray);
+        DIRECTORY.getCompositeIndex(workClass, keyClassArray).dumpContents();
     }
     
     @XmlTransient
@@ -1441,6 +1442,6 @@ public class Catalog
                 + String.format("%,13d",totalMemory));
         System.out.println
             ("Number of active nodes in IndexedCollections: " 
-                                    + IndexedCollection.getNodeCount());
+                                    + CompositeIndex.getNodeCount());
     }
 }

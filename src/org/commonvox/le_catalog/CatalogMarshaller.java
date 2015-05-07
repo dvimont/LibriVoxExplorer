@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Daniel Vimont
+ * Copyright (C) 2015 Daniel Vimont
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,9 +30,9 @@ import java.net.URL;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import org.commonvox.indexedcollection.IndexedCollectionBuildFailureException;
-import org.commonvox.indexedcollection.InvalidMultiKeyException;
-import org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException;
+import org.commonvox.indexedcollection.CompositeIndexBuildFailureException;
+import org.commonvox.indexedcollection.InvalidKeyException;
+import org.commonvox.indexedcollection.InvalidQueryException;
 
 /**
  *
@@ -148,11 +148,11 @@ public class CatalogMarshaller {
     
     public static Catalog unmarshalAndBootupCatalog (File file) 
             throws JAXBException, 
-                    InvalidIndexedCollectionQueryException, 
+                    InvalidQueryException, 
                     IllegalAccessException,
                     InvocationTargetException,
-                    InvalidMultiKeyException,
-                    IndexedCollectionBuildFailureException,
+                    InvalidKeyException,
+                    CompositeIndexBuildFailureException,
                     InterruptedException,
                     IOException {
         
@@ -165,11 +165,11 @@ public class CatalogMarshaller {
 
     public static Catalog unmarshalAndBootupCatalog (CatalogCallback callback) 
             throws JAXBException, 
-                    InvalidIndexedCollectionQueryException, 
+                    InvalidQueryException, 
                     IllegalAccessException,
                     InvocationTargetException,
-                    InvalidMultiKeyException,
-                    IndexedCollectionBuildFailureException,
+                    InvalidKeyException,
+                    CompositeIndexBuildFailureException,
                     InterruptedException,
                     IOException {
         if (callback != null) {
@@ -192,11 +192,11 @@ public class CatalogMarshaller {
     /*
     public static Catalog unmarshalCatalogFromXml() 
             throws JAXBException,
-                    InvalidIndexedCollectionQueryException, 
+                    InvalidQueryException, 
                     IllegalAccessException,
                     InvocationTargetException,
-                    InvalidMultiKeyException,
-                    IndexedCollectionBuildFailureException,
+                    InvalidKeyException,
+                    CompositeIndexBuildFailureException,
                     MalformedURLException {
         return unmarshalCatalogFromXml
             (CatalogMarshaller.class

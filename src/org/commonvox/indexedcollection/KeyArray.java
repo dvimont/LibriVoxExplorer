@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Daniel Vimont
+ * Copyright (C) 2015 Daniel Vimont
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ import java.util.List;
  *
  * @author Daniel Vimont
  */
-public class KeyArray 
+class KeyArray 
         implements Iterable<Key>{
     private Key[] array;
     

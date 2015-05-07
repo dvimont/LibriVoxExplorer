@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Daniel Vimont
+ * Copyright (C) 2015 Daniel Vimont
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ package org.commonvox.indexedcollection;
  * This class used in construction of {@link IndexedMetaCollection}
  * @author Daniel Vimont
  */
-public class ClassKey 
+class ClassKey 
         implements KeyWrapper<Class>, Comparable<ClassKey> {
     
     private final Class<?> wrappedClass;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Daniel Vimont
+ * Copyright (C) 2015 Daniel Vimont
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -130,7 +130,7 @@ import org.commonvox.le_catalog.Translator;
 import org.commonvox.le_catalog.MyBookmarks;
 import org.commonvox.le_catalog.MyList;
 import org.commonvox.le_catalog.Work;
-import org.commonvox.indexedcollection.InvalidIndexedCollectionQueryException;
+import org.commonvox.indexedcollection.InvalidQueryException;
 import org.commonvox.indexedcollection.Key;
 import org.commonvox.indexedcollection.IndexedKey;
 import org.commonvox.le_catalog.InterruptibleDownloader;
@@ -1756,7 +1756,7 @@ public class LeBrowser extends Application {
             alphabetVBox.getChildren().add
                     (getLetterAccordion(letterAccordionTitle, audiobookVBox));
         } 
-        catch (InvalidIndexedCollectionQueryException e) {
+        catch (InvalidQueryException e) {
             alphabetVBox.getChildren().add
                     (getExceptionLabel(e, indexedKeyClass.getSimpleName()));
         }
@@ -1801,7 +1801,7 @@ public class LeBrowser extends Application {
                     (getAudiobookAccordion(new AudiobookRowParms(indexedKeyObject)));
             }
         }
-        catch (InvalidIndexedCollectionQueryException e) {
+        catch (InvalidQueryException e) {
             audiobookVBox.getChildren().add
                     (getExceptionLabel(e, indexedKeyClass.getSimpleName()));
         }
@@ -1854,7 +1854,7 @@ public class LeBrowser extends Application {
                                 }
                             }
                         }
-                        catch (InvalidIndexedCollectionQueryException e) {
+                        catch (InvalidQueryException e) {
                             myAuthorsVBox.getChildren().add
                                 (getExceptionLabel(e, Author.class.getSimpleName()));
                         }
@@ -1916,7 +1916,7 @@ public class LeBrowser extends Application {
                                 }
                             }
                         }
-                        catch (InvalidIndexedCollectionQueryException e) {
+                        catch (InvalidQueryException e) {
                             myReadersVBox.getChildren().add
                                 (getExceptionLabel(e, Reader.class.getSimpleName()));
                         }
@@ -2059,7 +2059,7 @@ public class LeBrowser extends Application {
                             + audiobookLowValueString.toUpperCase() + ">"
                             + " -- through <" 
                             + audiobookHighValueString.toUpperCase() + ">";
-                } catch (InvalidIndexedCollectionQueryException e) {}
+                } catch (InvalidQueryException e) {}
             } else {
                     audiobookCountString = " [" + (rowParms.lowerIndex + 1) 
                                                 + "-" + rowParms.upperIndex + "]";
@@ -2068,7 +2068,7 @@ public class LeBrowser extends Application {
             try { audiobookCount.set(catalog.getWorks
                     (Audiobook.class, rowParms.indexedKeyObject, 
                             rowParms.readerWorksOption, Title.class).size());
-            } catch (InvalidIndexedCollectionQueryException e) {}
+            } catch (InvalidQueryException e) {}
             /* Count of audiobooks in MyList is dynamic, so Title of TitlePane
                cannot include it. */
             if (MyList.class.isAssignableFrom(rowParms.indexedKeyObject.getClass())
@@ -2337,7 +2337,7 @@ public class LeBrowser extends Application {
                 }
             }
         }
-        catch (InvalidIndexedCollectionQueryException e) {
+        catch (InvalidQueryException e) {
             StackPane stackPane = new StackPane();
             stackPane.getChildren().add(getExceptionLabel(e,"audiobook"));
             audiobookStackPanes.add(stackPane);

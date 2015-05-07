@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Daniel Vimont
+ * Copyright (C) 2015 Daniel Vimont
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +21,13 @@ package org.commonvox.indexedcollection;
  *
  * @author Daniel Vimont
  */
-public class InvalidMultiKeyException extends Exception {
+public class InvalidKeyException extends Exception {
 
     /**
      * Creates a new instance of <code>InvalidMultiKeyException</code> without
      * detail message.
      */
-    public InvalidMultiKeyException() {
+    public InvalidKeyException() {
     }
 
     /**
@@ -36,11 +36,11 @@ public class InvalidMultiKeyException extends Exception {
      *
      * @param msg the detail message.
      */
-    public InvalidMultiKeyException(String msg) {
+    public InvalidKeyException(String msg) {
         super(msg);
     }
 
-    public InvalidMultiKeyException(String msg, Throwable throwable) {
+    public InvalidKeyException(String msg, Throwable throwable) {
         super(msg, throwable);
     }
 }
