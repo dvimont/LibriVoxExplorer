@@ -17,14 +17,12 @@
 
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollection.Key;
-
 /**
  *
  * @author Daniel Vimont
  */
 public class Title 
-        implements Key<String>, Comparable<Title> {
+        implements Comparable<Title>, Key {
     
     private final String key;
     
@@ -42,7 +40,7 @@ public class Title
     
     @Override
     public int compareTo(Title otherTitle) {
-        return this.multiKeyAscendingOrder(otherTitle);
+        return this.getKeyItem().compareTo(otherTitle.getKeyItem());
     }
     
     @Override

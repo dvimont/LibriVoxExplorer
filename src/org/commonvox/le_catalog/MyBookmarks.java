@@ -25,14 +25,13 @@ import java.util.TreeSet;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javafx.util.Duration;
-import org.commonvox.indexedcollection.IndexedKey;
 
 /**
  *
  * @author Daniel Vimont
  */
 public class MyBookmarks 
-        implements PersistedUserSelectedCollection  {
+        implements PersistedUserSelectedCollection, Comparable<MyBookmarks>  {
     private final Map<String,String> bookmarkMap = new TreeMap<>();
     private static final Preferences USER_LIST_PREFERENCES 
                         = Preferences.userNodeForPackage(MyBookmarks.class);
@@ -128,7 +127,6 @@ public class MyBookmarks
         }
     }
     
-    @Override
     public String getKeyItem() {
         return null;
     }
@@ -137,6 +135,12 @@ public class MyBookmarks
     public String toString() {
         return "MY BOOKMARKED AUDIOBOOKS";
     }
+    
+    @Override
+    public int compareTo(MyBookmarks other) {
+        return 0;
+    }
+
     
     protected void dumpContents () {
         System.out.println

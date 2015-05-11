@@ -64,6 +64,7 @@ public class LeCatalog {
      STARTING_AUDIOBOOK_ID=[optional integer ID value for partial test processing]<br>
      PROCESSING_LIMIT=[optional integer for partial test processing]
      DELTA_SUPPRESS_COVER_ART_CHANGE=[Y|N]
+     * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
         

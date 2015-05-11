@@ -35,7 +35,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import org.commonvox.le_catalog.InterruptibleDownloader.ReturnCode;
-import org.commonvox.indexedcollection.IndexedKey;
 
 /**
  *
@@ -48,8 +47,7 @@ import org.commonvox.indexedcollection.IndexedKey;
                         "downloadCountInternetArchive", 
                         "publicationDateInternetArchive", "urlCoverArt",
                         "urlThumbnail", "urlM4bFiles", "sections" })
-public class Audiobook 
-        extends Work {
+public class Audiobook extends Work {
     private static final String IMAGES_PATH = "images/coverArt/";
     private String uniqueKey;
     private String urlRss;
@@ -368,7 +366,6 @@ public class Audiobook
      *
      * @return unique key value for this object
      */
-    @Override
     @XmlTransient
     public String getKeyItem () {
         if (uniqueKey == null) {
@@ -741,10 +738,10 @@ public class Audiobook
     }
     
     private String outputListHorizontally 
-            (Class<? extends IndexedKey> indexedKeyClass) {
+            (Class<? extends Comparable> indexedKeyClass) {
         StringBuilder printedList = new StringBuilder();
         boolean labelPrinted = false;
-        List<? extends IndexedKey> list = null;
+        List<? extends Comparable> list = null;
         if (indexedKeyClass == Reader.class) {
             list = this.getReaders();
         } else if (indexedKeyClass == Genre.class) {
@@ -759,7 +756,7 @@ public class Audiobook
         if (list == null || list.isEmpty()) {
             return printedList.toString();
         }
-        for (IndexedKey indexedKeyItem : list) {
+        for (Comparable indexedKeyItem : list) {
             if (!labelPrinted) {
                 labelPrinted = true;
                 printedList.append(super.BLANKS.substring
@@ -767,9 +764,9 @@ public class Audiobook
                 printedList.append
                     (indexedKeyClass.getSimpleName().toUpperCase());
                 printedList.append("(s): ");
-                printedList.append(indexedKeyItem.getKeyItem());
+                printedList.append(indexedKeyItem);
             } else {
-                printedList.append("; ").append(indexedKeyItem.getKeyItem());
+                printedList.append("; ").append(indexedKeyItem);
             }
         }
         if (labelPrinted) {
@@ -777,6 +774,4 @@ public class Audiobook
         }
         return printedList.toString();
     }
-    
-    
 }

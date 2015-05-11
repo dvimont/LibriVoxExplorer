@@ -17,7 +17,6 @@
 
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollection.IndexedKey;
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -31,8 +30,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "reader")
 @XmlType(propOrder = { "id", "displayName"})
 public class Reader 
-        implements HasLibrivoxId, IndexedKey, Comparable<Reader>, 
-                                            Mergeable, Serializable {
+        implements HasLibrivoxId, Comparable<Reader>, 
+                                            Mergeable, Serializable, Key {
     /** regular expression to find any leading char(s) that is whitespace, 
      * hyphen, quote, period, apostrophe, or vertical-bar. */
     private static final String REGEX_TRIM_LEADING_SPECIAL_CHARS 
@@ -40,15 +39,6 @@ public class Reader
     protected String librivoxId;
     protected String displayName;
     protected String uniqueKey;
-    /*
-    // multi part path index fields for Audiobook indexing
-    protected String titleForIndex;
-    private String publicationDateForIndex;
-    private int downloadsForIndex;
-    */
-    /** DUMMY_READER used as a workaround for an ObjectDB indexing bug. */
-    //protected static final Reader DUMMY_READER = new Reader("$*DUMMY*$");
-
     
     public Reader() {}
     
@@ -78,6 +68,7 @@ public class Reader
     }
     
     @XmlTransient
+    @Override
     public String getKeyItem () {
         if (uniqueKey == null) {
             setKeyItem();
@@ -92,22 +83,11 @@ public class Reader
     
     @Override
     public int compareTo(Reader otherReader) {
-        return this.multiKeyAscendingOrder(otherReader);
+        return this.getKeyItem().compareTo(otherReader.getKeyItem());
     }
     
     @Override
     public String toString () {
         return displayName;
-        //return this.getDisplayName();
     }
-    /*
-    protected void setAudiobookIndexFields(Audiobook audiobook) {
-        if (uniqueKey == null) {
-            setKeyItem();
-        }
-        titleForIndex = audiobook.getTitleKey().getKeyItem();
-        publicationDateForIndex = audiobook.getPublicationDateKey().getKeyItem();
-        downloadsForIndex = audiobook.getDownloadsKey().getKeyItem();
-    }
-    */
 }

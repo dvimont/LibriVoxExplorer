@@ -30,9 +30,6 @@ import java.net.URL;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import org.commonvox.indexedcollection.CompositeIndexBuildFailureException;
-import org.commonvox.indexedcollection.InvalidKeyException;
-import org.commonvox.indexedcollection.InvalidQueryException;
 
 /**
  *
@@ -146,13 +143,20 @@ public class CatalogMarshaller {
         return catalog;
     }
     
+    /**
+     *
+     * @param file
+     * @return
+     * @throws JAXBException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws InterruptedException
+     * @throws IOException
+     */
     public static Catalog unmarshalAndBootupCatalog (File file) 
             throws JAXBException, 
-                    InvalidQueryException, 
                     IllegalAccessException,
                     InvocationTargetException,
-                    InvalidKeyException,
-                    CompositeIndexBuildFailureException,
                     InterruptedException,
                     IOException {
         
@@ -165,11 +169,8 @@ public class CatalogMarshaller {
 
     public static Catalog unmarshalAndBootupCatalog (CatalogCallback callback) 
             throws JAXBException, 
-                    InvalidQueryException, 
                     IllegalAccessException,
                     InvocationTargetException,
-                    InvalidKeyException,
-                    CompositeIndexBuildFailureException,
                     InterruptedException,
                     IOException {
         if (callback != null) {
@@ -189,20 +190,6 @@ public class CatalogMarshaller {
         return unmarshalCatalogFromXml(url);
     }
 
-    /*
-    public static Catalog unmarshalCatalogFromXml() 
-            throws JAXBException,
-                    InvalidQueryException, 
-                    IllegalAccessException,
-                    InvocationTargetException,
-                    InvalidKeyException,
-                    CompositeIndexBuildFailureException,
-                    MalformedURLException {
-        return unmarshalCatalogFromXml
-            (CatalogMarshaller.class
-                            .getResource(CATALOG_XML_RESOURCE).getFile());
-    }
-    */
     public static void marshalCatalogToXml (Catalog catalog, String filePath) 
             throws JAXBException {
         marshalCatalogToXml(catalog, new File(filePath), false);

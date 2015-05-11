@@ -17,14 +17,12 @@
 
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollection.Key;
-
 /**
  *
  * @author Daniel Vimont
  */
 public class LibrivoxId 
-        implements Key<String>, Comparable<LibrivoxId> {
+        implements Comparable<LibrivoxId> {
     
     private final String key;
     
@@ -32,14 +30,13 @@ public class LibrivoxId
         this.key = key;
     }
     
-    @Override
     public String getKeyItem () {
         return this.key;
     }
     
     @Override
     public int compareTo(LibrivoxId otherLibrivoxId) {
-        return this.multiKeyAscendingOrder(otherLibrivoxId);
+        return this.key.compareTo(otherLibrivoxId.key);
     }
     
     @Override

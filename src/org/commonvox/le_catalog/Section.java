@@ -34,9 +34,7 @@ import javax.xml.bind.annotation.XmlType;
                         "readers"})
 public class Section 
         extends Work 
-        implements Mergeable, Serializable
-//, Comparable<Section> 
-{
+        implements Mergeable, Serializable {
     protected int sectionNumber;
     protected String urlForListening;
     protected int durationInSeconds;
@@ -87,17 +85,6 @@ public class Section
         this.readers = readers;
     }
 
-    /*
-    @Override
-    @XmlTransient
-    public List<Genre> getGenres () {
-        if (this.getParentAudiobook() == null) {
-            return null;
-        }
-        return this.getParentAudiobook().getGenres();
-    }
-    */
-    @Override
     @XmlTransient
     public String getKeyItem () {
         return String.format
@@ -132,39 +119,4 @@ public class Section
     public String toStringVerbose() {
         return "";
     }
-
-    /*
-    @Override
-    @XmlTransient
-    public int getDownloadCountInternetArchive () {
-        return this.getParentAudiobook().getDownloadCountInternetArchive();
-    }
-    
-    @Override
-    @XmlTransient
-    public double getDownloadsPerDay () {
-        return this.getParentAudiobook().getDownloadsPerDay();
-    }
-    
-    @Override
-    @XmlTransient
-    public int getDaysAvailable () {
-        return this.getParentAudiobook().getDaysAvailable();
-    }
-    
-    @Override
-    @XmlTransient
-    public String getPublicationDateInternetArchive () {
-        return this.getParentAudiobook().getPublicationDateInternetArchive();
-    }
-    */
-    /*
-    public List<Author> getAuthors () {
-        if (this.getParentAudiobook().isVariousAuthorsWork()) {
-            return authors;
-        } else {
-            return this.getParentAudiobook().getAuthors();
-        }
-    }
-    */
 }

@@ -17,14 +17,12 @@
 
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollection.Key;
-
 /**
  *
  * @author Daniel Vimont
  */
 public class Downloads 
-        implements Key<Integer>, Comparable<Downloads> {
+        implements Comparable<Downloads> {
     
     private final int key;
     
@@ -32,14 +30,14 @@ public class Downloads
         this.key = key;
     }
     
-    @Override
     public Integer getKeyItem () {
         return this.key;
     }
     
     @Override
     public int compareTo(Downloads otherDownloads) {
-        return this.multiKeyDescendingOrder(otherDownloads);
+        return (new Integer(otherDownloads.key)).compareTo(this.key);
+
     }
     
     @Override

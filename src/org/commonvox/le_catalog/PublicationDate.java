@@ -17,14 +17,12 @@
 
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollection.Key;
-
 /**
  *
  * @author Daniel Vimont
  */
 public class PublicationDate  
-        implements Key<String>, Comparable<PublicationDate> {
+        implements Comparable<PublicationDate> {
     
     private final String key;
     
@@ -32,7 +30,6 @@ public class PublicationDate
         this.key = key;
     }
     
-    @Override
     public String getKeyItem () {
         if (this.key == null) {
             return "";
@@ -42,8 +39,6 @@ public class PublicationDate
     
     @Override
     public int compareTo(PublicationDate otherPublicationDate) {
-        return this.multiKeyAscendingOrder(otherPublicationDate);
+        return this.getKeyItem().compareTo(otherPublicationDate.getKeyItem());
     }
-    
-    
 }

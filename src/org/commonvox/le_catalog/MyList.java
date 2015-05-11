@@ -26,7 +26,7 @@ import java.util.prefs.Preferences;
  * @author Daniel Vimont
  */
 public class MyList 
-        implements PersistedUserSelectedCollection {
+        implements PersistedUserSelectedCollection, Comparable<MyList> {
     private final TreeSet<String> authorIdSet = new TreeSet<>();
     private final TreeSet<String> readerIdSet = new TreeSet<>();
     private final TreeSet<String> audiobookIdSet = new TreeSet<>();
@@ -201,7 +201,6 @@ public class MyList
         persist();
     }
     
-    @Override
     public String getKeyItem() {
         return null;
     }
@@ -209,5 +208,10 @@ public class MyList
     @Override
     public String toString() {
         return "MY AUDIOBOOKS";
+    }
+    
+    @Override
+    public int compareTo(MyList other) {
+        return 0;
     }
 }

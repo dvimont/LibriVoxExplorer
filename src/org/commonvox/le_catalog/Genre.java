@@ -17,7 +17,6 @@
 
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollection.IndexedKey;
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -31,8 +30,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "genre")
 @XmlType(propOrder = { "id", "name"})
 public class Genre 
-        implements HasLibrivoxId, IndexedKey, 
-                        Comparable<Genre>, Mergeable, Serializable {
+        implements HasLibrivoxId, 
+                        Comparable<Genre>, Mergeable, Serializable, Key {
     /** regular expression to find any leading char(s) that is whitespace, 
      * hyphen, quote, period, apostrophe, or asterisk. */
     static final String REGEX_TRIM_LEADING_SPECIAL_CHARS = "^[\\s\\-\"\\.'\\*]+";
@@ -52,7 +51,6 @@ public class Genre
     }
 
     public String getName () {
-        //return name.replaceAll(REGEX_TRIM_LEADING_SPECIAL_CHARS, "");
         String subgenre = Catalog.SUBGENRE_MAP.get(librivoxId);
         if (subgenre == null) {
             return name.replaceAll(REGEX_TRIM_LEADING_SPECIAL_CHARS, "");
@@ -67,11 +65,11 @@ public class Genre
     
     @Override
     public int compareTo(Genre otherGenre) {
-        return this.multiKeyAscendingOrder(otherGenre);
+        return this.getKeyItem().compareTo(otherGenre.getKeyItem());
     }
     
-    @Override
     @XmlTransient
+    @Override
     public String getKeyItem() {
         if (uniqueKey == null) {
             setKeyItem();

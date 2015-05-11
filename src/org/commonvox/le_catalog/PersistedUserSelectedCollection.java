@@ -16,13 +16,11 @@
  */
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollection.IndexedKey;
-
 /**
  *
  * @author Daniel Vimont
  */
-public interface PersistedUserSelectedCollection extends IndexedKey {
+public interface PersistedUserSelectedCollection {
     public boolean contains (HasLibrivoxId object);
     public int size (Class<? extends HasLibrivoxId> submittedClass);
     public void remove (HasLibrivoxId object);

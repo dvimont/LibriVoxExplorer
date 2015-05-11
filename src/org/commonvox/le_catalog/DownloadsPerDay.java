@@ -17,7 +17,6 @@
 
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollection.Key;
 import java.math.BigDecimal;
 
 /**
@@ -25,7 +24,7 @@ import java.math.BigDecimal;
  * @author Daniel Vimont
  */
 public class DownloadsPerDay 
-        implements Key<BigDecimal>, Comparable<DownloadsPerDay> {
+        implements Comparable<DownloadsPerDay> {
     
     private final BigDecimal key;
     
@@ -33,14 +32,13 @@ public class DownloadsPerDay
         this.key = key;
     }
     
-    @Override
     public BigDecimal getKeyItem () {
         return this.key;
     }
     
     @Override
     public int compareTo(DownloadsPerDay otherDownloadsPerDay) {
-        return this.multiKeyDescendingOrder(otherDownloadsPerDay);
+        return otherDownloadsPerDay.key.compareTo(this.key);
     }
     
     @Override

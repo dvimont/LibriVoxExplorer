@@ -17,7 +17,6 @@
 
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollection.IndexedKey;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -28,7 +27,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement(name = "author")
 public class Author 
         extends Contributor 
-        implements IndexedKey, Comparable<Author> {
+        implements Comparable<Author>, Key {
     
     /** regular expression to find any leading char(s) that is whitespace, 
      * hyphen, quote, period, apostrophe, or single-quote. */
@@ -59,8 +58,8 @@ public class Author
         
     }
     
-    @Override
     @XmlTransient
+    @Override
     public String getKeyItem () {
         /*
         if (this.librivoxId == null || this.librivoxId.isEmpty()
@@ -82,7 +81,13 @@ public class Author
     
     @Override
     public int compareTo(Author other) {
-        return this.multiKeyAscendingOrder(other);
+        int returnedInt = this.lastName.toLowerCase().compareTo
+                                        (other.lastName.toLowerCase());
+        if (returnedInt == 0) {
+            returnedInt = this.firstName.toLowerCase().compareTo
+                                        (other.firstName.toLowerCase());
+        }
+        return returnedInt;
     }
 
     @Override

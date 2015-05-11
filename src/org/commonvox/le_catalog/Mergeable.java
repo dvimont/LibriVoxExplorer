@@ -27,7 +27,9 @@ import java.lang.reflect.Modifier;
 public interface Mergeable {
     /** Note that this is a "destructive merge", in that the value of any 
      * non-null field in otherObject will overlay the value of the corresponding
-     * field in this object. */
+     * field in this object.
+     * @param otherObject
+     * @throws java.lang.IllegalAccessException */
     default void merge (Object otherObject) 
             throws IllegalAccessException {
         if (otherObject.getClass() != this.getClass()) {

@@ -50,7 +50,6 @@ public abstract class Contributor
             return null;
         }
         return firstName.trim();
-        //return firstName;
     }
     
     public void setFirstName (String inputString) {
@@ -59,8 +58,7 @@ public abstract class Contributor
 
     @XmlElement(name = "last_name")
     public String getLastName () {
-        //return lastName.trim();
-        return lastName;
+       return lastName;
     }
     
     public void setLastName (String inputString) {

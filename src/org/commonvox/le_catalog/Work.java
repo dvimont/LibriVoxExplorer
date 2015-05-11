@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.commonvox.indexedcollection.Key;
 
 /**
  *
@@ -36,7 +35,7 @@ import org.commonvox.indexedcollection.Key;
                         "urlTextSource", "language",
                         "copyrightYear", "authors", "genres", "translators"})
 public abstract class Work 
-        implements HasLibrivoxId, Key<String>, Mergeable, Serializable, Comparable<Work> {
+        implements HasLibrivoxId, Mergeable, Serializable, Comparable<Work> {
     protected static final String IA_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     protected static final SimpleDateFormat DATE_VALIDATOR 
             = new SimpleDateFormat(IA_DATE_FORMAT);
@@ -163,9 +162,6 @@ public abstract class Work
     @XmlElementWrapper(name = "authors")
     @XmlElement(name = "author")
     public List<Author> getAuthors () {
-        //if (authors == null) {
-        //   return new ArrayList<Author>();
-        //}
         return authors;
     }
     
@@ -176,9 +172,6 @@ public abstract class Work
     @XmlElementWrapper(name = "genres")
     @XmlElement(name = "genre")
     public List<Genre> getGenres () {
-        //if (genres == null) {
-        //    return new ArrayList<Genre>();
-        //}
         return genres;
     }
     
@@ -219,38 +212,6 @@ public abstract class Work
     @XmlTransient
     public abstract Title getTitleKey ();
     
-    //@XmlTransient
-    //public abstract int getDownloadCountInternetArchive();
-    
-    //@XmlTransient
-    //public Downloads getDownloadsKey () {
-    //    return new Downloads(this.getDownloadCountInternetArchive());
-    //}
-    
-    //@XmlTransient
-    //public abstract double getDownloadsPerDay ();
-    
-    //@XmlTransient
-    //public DownloadsPerDay getDownloadsPerDayKey () {
-    //    return new DownloadsPerDay
-    //                (java.math.BigDecimal.valueOf(this.getDownloadsPerDay()));
-    //}
-    
-    //@XmlTransient
-    //public abstract String getPublicationDateInternetArchive ();
-    
-    //@XmlTransient
-    //protected abstract int getDaysAvailable ();
-    /*
-    @XmlTransient
-    public PublicationDate getPublicationDateKey () {
-        if (this.getPublicationDateInternetArchive() == null) {
-            return null;
-        } 
-        
-        return new PublicationDate(String.format("%09d", this.getDaysAvailable()));
-    }
-    */
     @Override
     public String toString() {
         return this.getId();
@@ -260,6 +221,6 @@ public abstract class Work
 
     @Override
     public int compareTo(Work otherWork) {
-        return this.multiKeyAscendingOrder(otherWork);
+        return this.getId().compareTo(otherWork.getId());
     }
 }

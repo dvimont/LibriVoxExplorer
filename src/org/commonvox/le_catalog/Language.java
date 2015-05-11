@@ -17,7 +17,6 @@
 
 package org.commonvox.le_catalog;
 
-import org.commonvox.indexedcollection.IndexedKey;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -26,7 +25,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 @XmlJavaTypeAdapter(LanguageXmlAdapter.class)
 public class Language 
-        implements IndexedKey, Comparable<Language>, Mergeable {
+        implements Comparable<Language>, Mergeable, Key {
     protected String language;
     private String uniqueKey;
 
@@ -77,7 +76,7 @@ public class Language
     
     @Override
     public int compareTo(Language otherLanguage) {
-        return this.multiKeyAscendingOrder(otherLanguage);
+        return this.language.compareTo(otherLanguage.language);
     }
     
     @Override

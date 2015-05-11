@@ -50,8 +50,8 @@ import javax.xml.bind.JAXBException;
 public class CatalogAssembler {
     private static final int MAX_LIBRIVOX_ID  = 9999;
     /** searches for "href" attribute with "http" or "https" url value 
-     NOTE: 2015-02-10 added \s to the regex to allow whitespace between 
-     quote and http */
+     * NOTE: 2015-02-10 added \s to the regex to allow whitespace between 
+     * quotation mark and http */
     private static final String REGEX_HREF = "href\\=\"\\s?https?://.*?\"";
     private static final Pattern HREF_PATTERN 
                 = Pattern.compile(REGEX_HREF, Pattern.CASE_INSENSITIVE);
@@ -59,7 +59,7 @@ public class CatalogAssembler {
     private static final String IO_LABEL = "IO";
     private static final String METADATA_EXTRACTION_LABEL = "Metadata Extraction";
     private static final String JSON_KEYNAME_SUFFIX_jpg = ".jpg";
-    private static final String JSON_KEYNAME_SUFFIX_m4b = ".m4b";
+    private static final String JSON_KEYNAME_SUFFIX_m4b = ".m4b"; // added v1.5.1
     private static final Pattern A_TAG_PATTERN
                 = Pattern.compile("\\<a .*?\\>", Pattern.CASE_INSENSITIVE);
     private static final Pattern DOWNLOAD_COVER_PATTERN
@@ -155,6 +155,7 @@ public class CatalogAssembler {
      * @return 
      * @throws javax.xml.bind.JAXBException 
      * @throws java.net.MalformedURLException 
+     * @throws java.lang.InterruptedException 
      */
     protected static Catalog assembleCatalogStage01 (Catalog currentCatalog, 
                                                         int restartId, 
@@ -244,6 +245,12 @@ public class CatalogAssembler {
      * LibriVox webpage. For works with multiple authors, for each section 
      * extract the following from the item's LibriVox webpage: 
      * author ID, author name, and URL for text.
+     * @param catalog
+     * @return 
+     * @throws java.lang.IllegalAccessException 
+     * @throws javax.xml.bind.JAXBException 
+     * @throws org.commonvox.le_catalog.RemoteApiProcessingException 
+     * @throws java.lang.InterruptedException 
      */
     protected static Catalog assembleCatalogStage02 (Catalog catalog)
             throws IllegalAccessException, JAXBException, 
@@ -387,7 +394,14 @@ public class CatalogAssembler {
      * (b) cover art URLs, and (c) URLs for M4B files (which may be on pages 
      * in comments). Note that this method uses JSON parsing for data retrieval.
      * Since download-count metadata must be updated at regular intervals, this
-     * method may be called in "overwrite" mode (via the boolean parameter). */
+     * method may be called in "overwrite" mode (via the boolean parameter).
+     * @param catalog
+     * @param overwrite
+     * @return
+     * @throws java.io.IOException
+     * @throws java.text.ParseException
+     * @throws java.lang.IllegalAccessException
+     * @throws java.lang.InterruptedException  */
     protected static Catalog assembleCatalogStage03 (Catalog catalog, boolean overwrite) 
             throws IOException, ParseException, IllegalAccessException,
                 InterruptedException {
@@ -490,8 +504,8 @@ public class CatalogAssembler {
                             + " processing audiobook with ID=" + audiobook.getId()
                             + " with Internet Archive webpage at URL: " 
                             + audiobook.getUrlInternetArchive());
-                    e.printStackTrace();
                 e.printStackTrace();
+                //e.printStackTrace();
             }
         }
         System.out.println("=============================");
@@ -525,7 +539,12 @@ public class CatalogAssembler {
     
     /** Extract the following from the LibriVox wiki pages which list M4B files:
      * (1) URL for item's LibriVox webpage;
-     * (2) URL(s) for item's M4B file(s) 
+     * (2) URL(s) for item's M4B file(s)
+     * @param showBadLinks
+     * @param urlStringsFilePath
+     * @return 
+     * @throws java.io.IOException 
+     * @throws java.lang.InterruptedException 
      */
     protected static Catalog assembleCatalogStage04
             (boolean showBadLinks, String urlStringsFilePath)
@@ -689,7 +708,8 @@ public class CatalogAssembler {
     /** STAGE 6: Incorporate M4B metadata from Stage 4 into catalog from Stage 3.
      * @param stage3Catalog
      * @param stage4Catalog
-     * @return  */
+     * @return
+     * @throws java.lang.InterruptedException  */
     protected static Catalog assembleCatalogStage06 
                     (Catalog stage3Catalog, Catalog stage4Catalog) 
                         throws InterruptedException {
@@ -766,7 +786,10 @@ public class CatalogAssembler {
     }
 
     /** STAGE 7: Remove from catalog all audiobooks that are missing
-     * vital metadata. */
+     * vital metadata.
+     * @param catalog
+     * @return
+     * @throws java.lang.InterruptedException  */
     protected static Catalog assembleCatalogStage07 (Catalog catalog)
             throws InterruptedException {
         System.out.println("=============================");
@@ -913,7 +936,6 @@ public class CatalogAssembler {
         final String JSON_KEYNAME_downloads = "downloads";
         // final String JSON_KEYNAME_subject = "subject"; // aborted enhancement
         final String JSON_KEYNAME_SUFFIX_mp3 = ".mp3";
-        final String JSON_KEYNAME_SUFFIX_m4b = ".m4b"; // added v1.5.1
         final String JSON_KEYNAME_format = "format";
         final String JSON_KEYNAME_metadata = "metadata";
         final String JSON_KEYNAME_title = "title";
